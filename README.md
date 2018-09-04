@@ -1,4 +1,5 @@
-# viaplayer
+# viaplayer 
+  https://www.qiatia.cn/tools/viaplayer/via-mini.html
 ## 轻量级的HTMl5播放器 三行代码嵌入任意网页
 没错啦就是左下角那个东东，超轻量级，三行代码，不算jq依赖不到20k，功能还算是齐全
 
