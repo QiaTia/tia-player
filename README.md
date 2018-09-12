@@ -14,8 +14,8 @@
 也就三行代码，算上依赖jq的
 
 ```html
-<script src="//libs.baidu.com/jquery/2.0.0/jquery.min.js"></script><br>
-<script src="//tia.nos-eastchina1.126.net/public/viaplayer/viaplayerAll.js"><br>
+<script src="//libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="//tia.nos-eastchina1.126.net/public/viaplayer/viaplayerAll.js">
 </script><script>viaplayer.player(*int playlist, string apiaddress)</script>
 ```
 
