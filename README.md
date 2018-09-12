@@ -13,9 +13,12 @@
 
 也就三行代码，算上依赖jq的
 
+```html
 <script src="//libs.baidu.com/jquery/2.0.0/jquery.min.js"></script><br>
 <script src="//tia.nos-eastchina1.126.net/public/viaplayer/viaplayerAll.js"><br>
 </script><script>viaplayer.player(*int playlist, string apiaddress)</script>
+```
+
 * 为必填字段
 playlist  ：网易云音乐的歌单 id，  接受int数据
 apiaddress  ：api链接地址，可选，接受string数据
