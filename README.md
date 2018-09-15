@@ -42,3 +42,4 @@ bug嘛，前几天刚刚弄出来的时候，，会把我主页面的所有元�
 
 本来打算叫tiapalayer，但是跟via太近。然后我又一直再用手机上哪款via浏览器，一直代码写下来都没发现毛病，，结果现在才想起来名字都不对头了-- 09.03
 
+# API <a href='https://github.com/metowolf/NeteaseCloudMusicApi'>NeteaseCloudMusicApi</a>
