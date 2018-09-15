@@ -251,7 +251,9 @@ var viaplayer = {
 								<span class="via-icon fast_rewind" onclick='viaplayer.prevMusic()'>`+viaplayer.icon.fast_rewind+`</span>
 								<span class="via-icon music-control icon-play" onclick='viaplayer.toogle()'>`+viaplayer.icon.play+`</span>
 								<span class="via-icon fast_forward" onclick="viaplayer.nextMusic()">`+viaplayer.icon.fast_rewind+`</span>
-								<span class="via-icon volume">`+viaplayer.icon.volume+`</span>
+								<span class="via-icon volume">`+viaplayer.icon.volume+`
+									<div class='volume-control' onclick="viaplayer.volumeX(event,'.volume-control')"><span></span></div>
+								</span>
 								<span class="via-icon order-switch order1" onclick='viaplayer.orderSwitch()'>`+viaplayer.icon.repeat+`</span>
 								<span class="via-icon menu-switch" onclick='viaplayer.menuSwitch()'>`+viaplayer.icon.menu+`</span>
 								<span class="via-icon lrc-switch" onclick="viaplayer.lrcSwitch()">`+viaplayer.icon.panel+`</span>
@@ -335,5 +337,18 @@ var viaplayer = {
 	  }
 	  console.log(document.documentElement.scrollLeft);
 	  this.audioCurrentTime(viaplayer.audio.duration*((event.clientX-left+document.documentElement.scrollLeft)/oDiv.offsetWidth))
+	},
+	volumeX:function(event,obj){
+	  let left
+	    ,oDiv=document.querySelector(obj)
+	    ,parObj=oDiv;
+	  left=oDiv.offsetLeft;
+	  while(parObj=parObj.offsetParent){
+	    left+=parObj.offsetLeft
+	  }
+	  let i=(event.clientX-left+document.documentElement.scrollLeft)/oDiv.offsetWidth;
+	  document.querySelector(obj+'>span').style.width = i*100+'%';
+	  this.audio.volume = i;
+	  //this.audioCurrentTime((event.clientX-left+document.documentElement.scrollLeft)/oDiv.offsetWidth)
 	} 
 }
