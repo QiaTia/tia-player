@@ -4,14 +4,19 @@ var viaplayer = {
 	status: false,
 	order: true,
 	via: 0,
-	audio: document.getElementById("via-audio"),
+	audio: '',
 	//title: document.querySelector(".via-info"),
-	viaLrc: document.querySelector(".lrc-content"),
+	viaLrc: '',
+	viaBarControl: '',
+	viaNowtime: '',
+	viaAllTime: '',
 	//viaPic: document.querySelector(".via-pic"),
 	lrcview: [],
 	menulist: false,
 	playStatus:false,
+	timeStatus:true,
 	api: 'https://qiatia.cn/tools/viaplayer/api/',
+	i:1,
 	icon:{
 		play: `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 16 31"><path d="M15.552 15.168q0.448 0.32 0.448 0.832 0 0.448-0.448 0.768l-13.696 8.512q-0.768 0.512-1.312 0.192t-0.544-1.28v-16.448q0-0.96 0.544-1.28t1.312 0.192z"></path></svg>`
 		,pause: `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 17 32"><path d="M14.080 4.8q2.88 0 2.88 2.048v18.24q0 2.112-2.88 2.112t-2.88-2.112v-18.24q0-2.048 2.88-2.048zM2.88 4.8q2.88 0 2.88 2.048v18.24q0 2.112-2.88 2.112t-2.88-2.112v-18.24q0-2.048 2.88-2.048z"></path></svg>`
@@ -111,7 +116,7 @@ var viaplayer = {
 			this.order = true
 		}
 	},
-getpalylist: function(i) {
+	getpalylist: function(i) {
 		var musicList, trackCount, temp;
 		$.post(this.api, {
 			playlist: i
@@ -232,9 +237,10 @@ getpalylist: function(i) {
 							<div class="via-icon music-control icon-play">`+viaplayer.icon.play+`</div>
 						</div>
 						<div class="via-panel">
-							<div class="via-info"></div>
+							<div class="via-info"><p>初始化中<span class="via-author"> - 请稍等</span></p></div>
 							<div class="via-bar-warp">
-								<p class="via-bar">&nbsp;</p>
+							  <div class="via-bar" onclick="viaplayer.DisplayX(event,'.via-bar')"><span class='bar-control'></span></div>
+							  <div class='via-time-info'><span class='via-now-time'>00:00</span>&nbsp;/&nbsp;<span class='via-all-time'>00:00</span></div>
 							</div>
 							<div class="via-control">
 								<span class="via-icon fast_rewind" onclick='viaplayer.prevMusic()'>`+viaplayer.icon.fast_rewind+`</span>
@@ -255,9 +261,12 @@ getpalylist: function(i) {
 						</div>
 					</div>
 					<audio id="via-audio" src=""></audio>`;
-		this.audio = document.getElementById("via-audio");
-		this.title = document.querySelector(".via-info");
+		this.audio = document.getElementById("via-audio"),
+		this.title = document.querySelector(".via-info"),
 		this.viaLrc = document.querySelector(".lrc-content");
+		this.viaBarControl= document.querySelector(".bar-control"),
+		this.viaNowtime= document.querySelector(".via-now-time"),
+		this.viaAllTime= document.querySelector(".via-all-time");
 		//this.viaPic = document.querySelector(".via-pic");
 		if (api != undefined) this.api = api;
 		this.audio.addEventListener('play', function() {
@@ -265,7 +274,8 @@ getpalylist: function(i) {
 			viaplayer.menulist = document.querySelectorAll('.via-list>ol>li')[viaplayer.via];
 			viaplayer.menulist.className = 'select';
 			viaplayer.lrcview = document.querySelectorAll('.lrc-content>p');
-			console.log(viaplayer.playlist[viaplayer.via].name)
+			viaplayer.timeStatus = true;
+			viaplayer.i = 0
 		});
 		this.audio.loop = false;
 		this.audio.addEventListener('ended', function() {
@@ -278,6 +288,15 @@ getpalylist: function(i) {
 			}
 		}, false);
 		this.audio.addEventListener("timeupdate", function(e) {
+			if(parseInt(this.currentTime)-1 > viaplayer.i){
+				viaplayer.viaBarControl.style.width =  (this.currentTime.toFixed(0)/viaplayer.audio.duration.toFixed(0))*100+'%';
+				viaplayer.viaNowtime.innerHTML = parseInt(this.currentTime/60)+':'+ (this.currentTime.toFixed(0)%60);
+				viaplayer.i++;
+				if(viaplayer.timeStatus) {
+					viaplayer.viaAllTime.innerHTML = parseInt(parseInt(viaplayer.audio.duration.toFixed(0))/60) +":"+parseInt(viaplayer.audio.duration.toFixed(0))%60;
+					viaplayer.timeStatus = !viaplayer.timeStatus
+				}
+			}
 			for (var i = 1, l = viaplayer.lyrics.length - 1; i < l; i++) {
 				if (this.currentTime > viaplayer.lyrics[i][0]) {
 					try {
@@ -291,5 +310,25 @@ getpalylist: function(i) {
 			}
 		});
 		this.getpalylist(list)
-	}
+	},
+	audioCurrentTime:function(t){
+		//this.audio.currentTime
+		if('fastSeek' in this.audio){
+			viaplayer.audio.fastSeek(t)
+		}else{
+			viaplayer.audio.currentTime = t
+		}
+		viaplayer.i=parseInt(this.audio.currentTime)-1
+	},
+	DisplayX:function(event,obj){
+	  let left
+	    ,oDiv=document.querySelector(obj)
+	    ,parObj=oDiv;
+	  left=oDiv.offsetLeft;
+	  while(parObj=parObj.offsetParent){
+	    left+=parObj.offsetLeft
+	  }
+	  console.log(document.documentElement.scrollLeft);
+	  this.audioCurrentTime(viaplayer.audio.duration*((event.clientX-left+document.documentElement.scrollLeft)/oDiv.offsetWidth))
+	} 
 }
