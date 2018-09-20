@@ -137,8 +137,8 @@ var viaplayer = {
 			url: i
 		}, function(data) {
 			data = data.data;
-			viaplayer.audio.src = data[0].url
-			//viaplayer.lyricsView(this.lyrics)
+			viaplayer.audio.src = data[0].url;
+			if(viaplayer.playStatus) {viaplayer.play()}else{viaplayer.playStatus = true}
 		})
 	},
 	parseLyric: function(lrc) {
@@ -167,8 +167,7 @@ var viaplayer = {
 			lyric: i
 		}, function(data) {
 			var lrc =data.lrc.lyric;
-			viaplayer.lyricsView(viaplayer.parseLyric(lrc));
-			if(viaplayer.playStatus) {viaplayer.play()}else{viaplayer.playStatus = true}
+			viaplayer.lyricsView(viaplayer.parseLyric(lrc))
 		})
 	},
 	listView:function(i){
