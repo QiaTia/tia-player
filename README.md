@@ -23,6 +23,13 @@
 playlist: 网易云音乐的歌单 id，  接受int数据
 apiaddress: api链接地址，可选，接受string数据
 ```
+### 如需手机上不显示
+添加css样式即可
+```css
+@media (max-width:600px){
+   #viaplayer{display: none}
+}
+```
 ### 高清预览：
 ![view](/preview/1.png)
 ![view](/preview/2.png)
