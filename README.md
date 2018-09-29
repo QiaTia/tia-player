@@ -1,12 +1,12 @@
 # viaplayer 
   https://qiatia.cn/tools/viaplayer/via-mini.html
-## 轻量级的HTMl5播放器 三行代码嵌入任意网页
-没错啦就是左下角那个东东，超轻量级，三行代码，不算jq依赖不到20k，功能还算是齐全
+## 轻量级的JavaScript在线音乐播放器 三行代码嵌入任意网页
+超轻量级，三行代码，不算jq依赖不到20k，功能还算是齐全
 
-我也不想依赖jquery啊，但是使用jq能减少好多工作量哎，特别是ajax方法用起来特别爽，等以后看有空去掉jq依赖吧
+    我也不想依赖jquery啊，但是使用jq能减少好多工作量哎，特别是ajax方法用起来特别爽，等以后看有空去掉jq依赖吧
 ### 大致功能：
 
-后台获取网易云音乐歌单,歌手显示,歌词滚动,歌曲列表,常用的歌曲切换,播放顺序切换,播放进度控制
+    歌手图片显示,歌词滚动,歌曲列表,常用的歌曲切换,播放顺序切换,播放进度控制,播放音量控制,后台获取网易云音乐歌单
 
 ### 开始使用
 
@@ -18,9 +18,11 @@
 <script>viaplayer.player(*int playlist, string apiaddress)</script>
 ```
 
-```* 为必填字段```
+``` 
+* 为必填字段
 playlist  ：网易云音乐的歌单 id，  接受int数据
 apiaddress  ：api链接地址，可选，接受string数据
+```
 ### 高清预览：
 ![view](/preview/1.png)
 ![view](/preview/2.png)
@@ -42,5 +44,5 @@ bug嘛，前几天刚刚弄出来的时候，，会把我主页面的所有元�
 
 本来打算叫tiapalayer，但是跟via太近。然后我又一直再用手机上哪款via浏览器，一直代码写下来都没发现毛病，，结果现在才想起来名字都不对头了-- 09.03
 
-# 后台 API 
+# 后台 API & 致谢
 <a href='https://github.com/metowolf/NeteaseCloudMusicApi'>NeteaseCloudMusicApi</a>
