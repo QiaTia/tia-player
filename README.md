@@ -53,3 +53,6 @@ bug嘛，前几天刚刚弄出来的时候，，会把我主页面的所有元�
 
 # 后台 API & 致谢
 <a href='https://github.com/metowolf/NeteaseCloudMusicApi'>NeteaseCloudMusicApi</a>
+
+# Ta们也在用ViaPlayer
+https://qiatia.github.io/ https://qiatia.cn
