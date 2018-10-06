@@ -311,6 +311,5 @@ var viaplayer = {
 	  let i=(event.clientX-left+document.documentElement.scrollLeft)/oDiv.offsetWidth;
 	  document.querySelector(obj+'>span').style.width = i*100+'%';
 	  this.audio.volume = i;
-	  //this.audioCurrentTime((event.clientX-left+document.documentElement.scrollLeft)/oDiv.offsetWidth)
 	} 
 }
