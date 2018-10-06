@@ -269,6 +269,7 @@ var viaplayer = {
 				if (this.currentTime > viaplayer.lyrics[i][0]) {
 					try {
 						viaplayer.viaLrc.style.webkitTransform = "translateY(-" + (1.2 * i) + "rem)";
+						viaplayer.viaLrc.style.msTransform = "translateY(-" + (1.2 * i) + "rem)";
 						viaplayer.lrcview[i].className = 'lrc-cursor';
 						viaplayer.lrcview[i - 1].className = ''
 					} catch (e) {
