@@ -4,7 +4,7 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-06-25 20:02:03
+ * @LastEditTime: 2019-06-25 20:42:48
  */
 // import { stringify } from 'qs'
 
@@ -30,22 +30,19 @@ function stringify(obj, prefix){
 const $http = {
   baseUrl: '',
   request: function (url, data, Methods){
-    /^http[s]?:\/\//.test(url)||(url = this.baseUrl+url)
-    let xmlhttp
-		if (window.XMLHttpRequest){
-			//  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
-			xmlhttp = new XMLHttpRequest()
-		}else{
-			// IE6, IE5 浏览器执行代码
-			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP")
-		}
+    
     return new Promise((resolve,reject)=>{
+      /^http[s]?:\/\//.test(url)||(url = this.baseUrl+url)
+      data = stringify(data);
+      url += (url.indexOf('?') === -1 ? '?' : '&') + data
+      let xmlhttp = new XMLHttpRequest()
       xmlhttp.open(Methods,url,true)
       xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded")
-      xmlhttp.send(stringify(data))
+      xmlhttp.send(data)
       xmlhttp.onreadystatechange = ()=>{
         if(xmlhttp.status === 200){
-          resolve(JSON.parse(xmlhttp.response))
+          let responseData = xmlhttp.response || xmlhttp.responseText
+          responseData && resolve(JSON.parse(responseData))
         }else{
           reject(xmlhttp)
         }
@@ -105,7 +102,7 @@ const template = `
 
 function $Tia(id = 729837165, url = 'http://localhost:3000/'){
   $http.baseUrl = url
-  $http.get('playlist/detail?id='+id,{id: id}).then((res)=>{
+  $http.get('playlist/detail',{id: id}).then((res)=>{
     console.log(res)
   })
   this.init(id) 
