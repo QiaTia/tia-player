@@ -4,47 +4,110 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-06-27 09:15:10
+ * @LastEditTime: 2019-06-27 22:53:06
  */
 // import Toast from './toast'
-
-const stringify= function(obj, prefix){
-  var pairs = []
-  for (var key in obj) {
-    if (!obj.hasOwnProperty(key)) {
-      continue
-    }
-    var value = obj[key]
-    var enkey = encodeURIComponent(key)
-    var pair
-    if (typeof value === 'object') {
-      pair = queryStringify(value, prefix ? prefix + '[' + enkey + ']' : enkey)
-    } else {
-      pair = (prefix ? prefix + '[' + enkey + ']' : enkey) + '=' + encodeURIComponent(value)
-    }
-    pairs.push(pair)
-  }
-  return pairs.join('&')
+String.prototype.trim = function(){
+  return this.replace(/^\s*/, '').replace(/\s*$/, '');
 }
-
+String.prototype.pareTime = function(){
+	let t = this.split(':')
+	return t.map(item=>(item<10?'0'+item:item)).join(':')
+}
+/**
+ * @description: $http
+ * @param {type} 
+ * @return: 
+ */
 let $http = {
   baseUrl: '',
+  stringify: function(obj, prefix){
+    var pairs = []
+    for (var key in obj) {
+      if (!obj.hasOwnProperty(key)) {
+        continue
+      }
+      var value = obj[key]
+      var enkey = encodeURIComponent(key)
+      var pair
+      if (typeof value === 'object') {
+        pair = queryStringify(value, prefix ? prefix + '[' + enkey + ']' : enkey)
+      } else {
+        pair = (prefix ? prefix + '[' + enkey + ']' : enkey) + '=' + encodeURIComponent(value)
+      }
+      pairs.push(pair)
+    }
+    return pairs.join('&')
+  },
+  parseHeaders: function(headers){
+    let ignoreDuplicateOf = [
+      'age', 'authorization', 'content-length', 'content-type', 'etag',
+      'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+      'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+      'referer', 'retry-after', 'user-agent'
+    ];
+    let parsed = {}, key, val, i;
+    if (!headers) { return parsed; }
+    headers.split('\n').map(function parser(line) {
+      i = line.indexOf(':');
+      key = line.substr(0, i).trim().toLowerCase();
+      val = line.substr(i + 1).trim()
+      if (key) {
+        if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+          return;
+        }
+        if (key === 'set-cookie') {
+          parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+        } else {
+          parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+        }
+      }
+    })
+    return parsed;
+  },
   request: function (url, data, Methods='GET'){
+    if(!url) return false
     return new Promise((resolve,reject)=>{
       /^http[s]?:\/\//.test(url)||(url = this.baseUrl+url)
-      data = stringify(data);
+      data = this.stringify(data);
       Methods == 'GET'&&(url += (url.indexOf('?') === -1 ? '?' : '&') + data)
       let xmlhttp = new XMLHttpRequest()
       xmlhttp.open(Methods,url,true)
       xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded")
       xmlhttp.send(data)
       xmlhttp.onreadystatechange = ()=>{
-        if(xmlhttp.status === 200){
-          let responseData = xmlhttp.response || xmlhttp.responseText
-          responseData && resolve(JSON.parse(responseData))
-        }else{
-          reject(xmlhttp)
+        if (!xmlhttp || xmlhttp.readyState !== 4) {
+          return;
         }
+        if(xmlhttp.readyState === 4){
+          let response = {
+            headers: 'getAllResponseHeaders' in xmlhttp ? this.parseHeaders(xmlhttp.getAllResponseHeaders()) : null,
+            data: xmlhttp.response || xmlhttp.responseText,
+            status: xmlhttp.status,
+            requestURL: xmlhttp.responseURL,
+            request: xmlhttp
+          }
+          if(xmlhttp.status !== 200){
+            /json/.test(response.headers['content-type'])?reject(JSON.parse(response.data)):reject(response.data)
+          }
+          if(response.data){
+            /json/.test(response.headers['content-type'])?resolve(JSON.parse(response.data)):resolve(response.data)
+          }
+        }
+      }
+      xmlhttp.onerror = function() {
+        // Real errors are hidden from us by the browser
+        // onerror should only fire if it's a network error
+        reject({msg:'Network Error',config:{url, data, Methods}, xmlhttp})
+      }
+      xmlhttp.onabort = function() {
+        if (!request) {
+          return;
+        }
+        reject({msg:'Request aborted',config:{url, data, Methods}, xmlhttp})
+      }
+      xmlhttp.ontimeout = function() {
+        reject({msg:'timeout of Nam ms exceeded',config:{url, data, Methods}, xmlhttp});
       }
     })
   },
@@ -57,7 +120,7 @@ let $http = {
 }
 
 /**
- * @description: 
+ * @description: $icon
  * @param {type} 
  * @return: 
  */
@@ -80,7 +143,7 @@ function tia(id = 729837165, url = 'http://localhost:3000/'){
   $http.baseUrl = url
   $http.get('playlist/detail',{id: id}).then((res)=>{
     // console.log(res)
-    let detail = this.parse(res)
+    let detail= this.detail = this.parse(res)
     this.init(detail)
   })
   // this.init(id) 
@@ -107,18 +170,18 @@ tia.prototype.parse = function({playlist,privileges}){
   }
 }
 tia.prototype.init = function(detail){
-  console.log(detail)
+  // 网页渲控件
   const template = `
     <div class="tia-list"><ol>${detail.listInner}</ol></div>
     <div class="tia-body">
-      <div class="tia-pic" onclick='$Tia.toogle()'><div class="tia-icon music-control icon-play">${icon.play}</div></div>
+      <div class="tia-pic" id="tia-toggle"><div class="tia-icon music-control icon-play">${icon.play}</div></div>
       <div class="tia-panel">
         <div class="tia-info"><p>${detail.list[0].name}<span class="tia-author"> - ${detail.list[0].artist}</span></p></div>
         <div class="tia-bar-warp"><div class="tia-bar" onclick="$Tia.DisplayX(event,'.tia-bar')"><span class='bar-control'></span></div>
         <div class='tia-time-info'><span class='tia-now-time'>00:00</span>&nbsp;/&nbsp;<span class='tia-all-time'>00:00</span></div></div>
         <div class="tia-control">
           <span class="tia-icon fast_rewind" onclick='$Tia.prevMusic()'>${icon.fast_rewind}</span>
-          <span class="tia-icon music-control icon-play" onclick='$Tia.toogle()'>${icon.play}</span>
+          <span class="tia-icon music-control icon-play" onclick='$Tia.toggle()'>${icon.play}</span>
           <span class="tia-icon fast_forward" onclick="$Tia.nextMusic()">'${icon.fast_rewind}</span>
           <span class="tia-icon volume">${icon.volume}<div class='volume-control' onclick="$Tia.volumeX(event,'.volume-control')"><span></span></div></span>
           <span class="tia-icon order-switch order1" onclick='$Tia.orderSwitch()'>${icon.repeat}</span>
@@ -135,12 +198,75 @@ tia.prototype.init = function(detail){
   div.setAttribute("id", "Tia");
   div.innerHTML = template;
   document.body.appendChild(div);
-  this.audio = document.getElementById("tia-audio"), this.title = document.querySelector(".tia-info"), this.tiaLrc = document.querySelector(".lrc-content");
+  // 初始化自身变量, 开始监听
+  this.playStatus = false
+  this.id = 0
+  // 音频监听
+  this.audio = document.getElementById("tia-audio")
+  this.audio.addEventListener('ended', ()=>( this.next() ), false);
+  // 播放歌词监听
+  this.audio.addEventListener("timeupdate", ({target})=>{
+    let currentTime = target.currentTime
+    if(parseInt(currentTime)-1 > this.i){
+      // this.$barControl.style.width =  (currentTime.toFixed(0)/target.duration.toFixed(0))*100+'%';
+      // this.$nowtime.innerHTML = parseInt(currentTime/60)+':'+ (currentTime.toFixed(0)%60);
+      this.i++;
+    }
+    for (var i = 1, l = this.lyrics.length - 1; i < l; i++) {
+      if (currentTime > this.lyrics[i][0]) {
+        try {
+          this.viaLrc.style.webkitTransform = "translateY(-" + (1.2 * i) + "em)";
+          this.viaLrc.style.msTransform = "translateY(-" + (1.2 * i) + "em)";
+          this.lrcview[i].className = 'lrc-cursor';
+          this.lrcview[i - 1].className = ''
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    }
+  });
+  // 监听  封面地图。 播放切换监听
+  this.$_Pic = document.getElementById('tia-toggle')
+  this.$_Pic.style.background='url('+detail.cover+')'
+  this.$_Pic.onclick = ()=>(this.toggle())
+  
+  this.title = document.querySelector(".tia-info"), this.tiaLrc = document.querySelector(".lrc-content");
   this.tiaBarControl = document.querySelector(".bar-control"), this.tiaNowtime = document.querySelector(".tia-now-time"), this.tiaAllTime = document.querySelector(".tia-all-time");
 }
-tia.prototype.toogle = function(){
-  this.audio.play()
+tia.prototype.toggle = function(){
+  console.log(this.playStatus)
+
+  if(this.playStatus){
+    this.pause()
+  }else{
+    this.play()
+  }
 }
+tia.prototype.pause = function(){
+  this.playStatus = false
+  return this.audio.pause()
+}
+tia.prototype.play=function(){
+  // console.log(this.audio)
+  this.audio.play().then(()=>{
+    // do some thing
+    this.playStatus = true
+    let allTime = this.allTime = this.audio.duration
+    this.$_allTime.innerHTML = (~~(allTime/60) +":"+(~~allTime%60)).pareTime()
+  }).catch(e=>{
+    this.next()
+    console.warn(e)
+  })
+}
+tia.prototype.next=function(){
+  // 切换歌曲
+  let t = this.detail.list[++this.id]
+  this.audio.src = t.src
+  this.$_Pic.style.background='url('+t.pic+')'
+  // 播放歌曲
+  this.play()
+}
+
 const $Tia = (options)=>{
   return new tia(options)
 }
