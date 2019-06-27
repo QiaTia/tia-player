@@ -249,20 +249,25 @@
 }
 div.tia-toast {
   width: 100%;
-  z-index: 4999;
+  z-index: 999;
+  transition: all .3s ease;
   background-color: #323232;
   position: fixed;
-  bottom: 0;
+  bottom: -100px;
   left: 0;
-  border-radius: 3px;
-  padding: 10px;
-  color: #ccc
+  color: #ccc;
+  p{
+    padding: 10px 16px;
+  }
 }
 
 @media (min-width:600px) {
   div.tia-toast {
-    padding: 5px 16px;
+    border-radius: 6px;    
     width: 500px;
-    left: calc(50% - 250px)
+    left: calc(50% - 250px);
+    p{
+      padding: 10px;
+    }
   }
 }

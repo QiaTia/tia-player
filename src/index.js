@@ -4,11 +4,11 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-06-25 20:42:48
+ * @LastEditTime: 2019-06-27 09:15:10
  */
-// import { stringify } from 'qs'
+// import Toast from './toast'
 
-function stringify(obj, prefix){
+const stringify= function(obj, prefix){
   var pairs = []
   for (var key in obj) {
     if (!obj.hasOwnProperty(key)) {
@@ -27,14 +27,13 @@ function stringify(obj, prefix){
   return pairs.join('&')
 }
 
-const $http = {
+let $http = {
   baseUrl: '',
-  request: function (url, data, Methods){
-    
+  request: function (url, data, Methods='GET'){
     return new Promise((resolve,reject)=>{
       /^http[s]?:\/\//.test(url)||(url = this.baseUrl+url)
       data = stringify(data);
-      url += (url.indexOf('?') === -1 ? '?' : '&') + data
+      Methods == 'GET'&&(url += (url.indexOf('?') === -1 ? '?' : '&') + data)
       let xmlhttp = new XMLHttpRequest()
       xmlhttp.open(Methods,url,true)
       xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded")
@@ -50,7 +49,7 @@ const $http = {
     })
   },
   get: function(url, data){
-    return this.request(url,data,'GET')
+    return this.request(url,data)
   },
   post: function(url, data){
     return this.request(url,data,'POST')
@@ -76,43 +75,72 @@ const icon = {
   ,left: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 32 32"><path d="M22 16l-10.105-10.6-1.895 1.987 8.211 8.613-8.211 8.612 1.895 1.988 8.211-8.613z"></path></svg>'
   ,right: '<svg style="transform:rotate(180deg)" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 32 32"><path d="M22 16l-10.105-10.6-1.895 1.987 8.211 8.613-8.211 8.612 1.895 1.988 8.211-8.613z"></path></svg>'
 }
-const template = `
-  <div class="tia-list"><ol></ol></div>
-  <div class="tia-body">
-    <div class="tia-pic" onclick='$Tia.toogle()'><div class="tia-icon music-control icon-play">${icon.play}</div></div>
-    <div class="tia-panel">
-      <div class="tia-info"><p>初始化中<span class="tia-author"> - </span></p></div>
-      <div class="tia-bar-warp"><div class="tia-bar" onclick="$Tia.DisplayX(event,'.tia-bar')"><span class='bar-control'></span></div>
-      <div class='tia-time-info'><span class='tia-now-time'>00:00</span>&nbsp;/&nbsp;<span class='tia-all-time'>00:00</span></div></div>
-      <div class="tia-control">
-        <span class="tia-icon fast_rewind" onclick='$Tia.prevMusic()'>${icon.fast_rewind}</span>
-        <span class="tia-icon music-control icon-play" onclick='$Tia.toogle()'>${icon.play}</span>
-        <span class="tia-icon fast_forward" onclick="$Tia.nextMusic()">'${icon.fast_rewind}</span>
-        <span class="tia-icon volume">${icon.volume}<div class='volume-control' onclick="$Tia.volumeX(event,'.volume-control')"><span></span></div></span>
-        <span class="tia-icon order-switch order1" onclick='$Tia.orderSwitch()'>${icon.repeat}</span>
-        <span class="tia-icon menu-switch" onclick='$Tia.menuSwitch()'>${icon.menu}</span>
-        <span class="tia-icon lrc-switch" onclick="$Tia.lrcSwitch()">${icon.panel}</span>
-      </div>
-    </div>
-    <div class="panel-switch" onclick="$Tia.panelSwitch()">${icon.left}</div>
-  </div>
-  <div class="tia-lrc"><div class="lrc-content"></div></div>
-  <audio id="tia-audio"></audio>
-`
 
-function $Tia(id = 729837165, url = 'http://localhost:3000/'){
+function tia(id = 729837165, url = 'http://localhost:3000/'){
   $http.baseUrl = url
   $http.get('playlist/detail',{id: id}).then((res)=>{
-    console.log(res)
+    // console.log(res)
+    let detail = this.parse(res)
+    this.init(detail)
   })
-  this.init(id) 
+  // this.init(id) 
 }
-
-$Tia.prototype.init = function(id){
+tia.prototype.parse = function({playlist,privileges}){
+  let list = playlist.tracks.map(({name,ar,al,id})=>{
+    return{
+      name,
+      id,
+      artist: ar[0].name,
+      pic: al.picUrl,
+      src: 'https://music.163.com/song/media/outer/url?id='+id+'.mp3'
+    }
+  })
+  let listInner = ''
+  for (let i in list) {
+    listInner += '<li onclick="$Tia.listplay(' + i + ');">'+list[i].name + '<span class="list-right">' + list[i].artist + '</span></li>'
+  }
+  return {
+    list,
+    listInner,
+    name: playlist.name,
+    cover: playlist.coverImgUrl,
+  }
+}
+tia.prototype.init = function(detail){
+  console.log(detail)
+  const template = `
+    <div class="tia-list"><ol>${detail.listInner}</ol></div>
+    <div class="tia-body">
+      <div class="tia-pic" onclick='$Tia.toogle()'><div class="tia-icon music-control icon-play">${icon.play}</div></div>
+      <div class="tia-panel">
+        <div class="tia-info"><p>${detail.list[0].name}<span class="tia-author"> - ${detail.list[0].artist}</span></p></div>
+        <div class="tia-bar-warp"><div class="tia-bar" onclick="$Tia.DisplayX(event,'.tia-bar')"><span class='bar-control'></span></div>
+        <div class='tia-time-info'><span class='tia-now-time'>00:00</span>&nbsp;/&nbsp;<span class='tia-all-time'>00:00</span></div></div>
+        <div class="tia-control">
+          <span class="tia-icon fast_rewind" onclick='$Tia.prevMusic()'>${icon.fast_rewind}</span>
+          <span class="tia-icon music-control icon-play" onclick='$Tia.toogle()'>${icon.play}</span>
+          <span class="tia-icon fast_forward" onclick="$Tia.nextMusic()">'${icon.fast_rewind}</span>
+          <span class="tia-icon volume">${icon.volume}<div class='volume-control' onclick="$Tia.volumeX(event,'.volume-control')"><span></span></div></span>
+          <span class="tia-icon order-switch order1" onclick='$Tia.orderSwitch()'>${icon.repeat}</span>
+          <span class="tia-icon menu-switch" onclick='$Tia.menuSwitch()'>${icon.menu}</span>
+          <span class="tia-icon lrc-switch" onclick="$Tia.lrcSwitch()">${icon.panel}</span>
+        </div>
+      </div>
+      <div class="panel-switch" onclick="$Tia.panelSwitch()">${icon.left}</div>
+    </div>
+    <div class="tia-lrc"><div class="lrc-content"></div></div>
+    <audio id="tia-audio" src="${detail.list[0].src}"></audio>
+  `
   var div = document.createElement("div");
   div.setAttribute("id", "Tia");
   div.innerHTML = template;
   document.body.appendChild(div);
   this.audio = document.getElementById("tia-audio"), this.title = document.querySelector(".tia-info"), this.tiaLrc = document.querySelector(".lrc-content");
   this.tiaBarControl = document.querySelector(".bar-control"), this.tiaNowtime = document.querySelector(".tia-now-time"), this.tiaAllTime = document.querySelector(".tia-all-time");
+}
+tia.prototype.toogle = function(){
+  this.audio.play()
+}
+const $Tia = (options)=>{
+  return new tia(options)
 }

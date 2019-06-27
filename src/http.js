@@ -1,4 +1,4 @@
-const stringify = function(obj, prefix){
+const stringify= function(obj, prefix){
   var pairs = []
   for (var key in obj) {
     if (!obj.hasOwnProperty(key)) {
@@ -17,30 +17,21 @@ const stringify = function(obj, prefix){
   return pairs.join('&')
 }
 
-/**
- * @description: ajax
- * @param {type} 
- * @return: 
- */
-export default {
+const http = {
   baseUrl: '',
-  request: function (url, data, Methods){
-    /^http[s]?:\/\//.test(url)||(url = this.baseUrl+url)
-    let xmlhttp
-		if (window.XMLHttpRequest){
-			//  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
-			xmlhttp = new XMLHttpRequest()
-		}else{
-			// IE6, IE5 浏览器执行代码
-			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP")
-		}
+  request: function (url, data, Methods='GET'){
     return new Promise((resolve,reject)=>{
+      /^http[s]?:\/\//.test(url)||(url = this.baseUrl+url)
+      data = stringify(data);
+      Methods == 'GET'&&(url += (url.indexOf('?') === -1 ? '?' : '&') + data)
+      let xmlhttp = new XMLHttpRequest()
       xmlhttp.open(Methods,url,true)
       xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded")
-      xmlhttp.send(stringify(data))
-      xmlhttp.onreadystatechange=function(){
-        if(xmlhttp.readyState==4){
-          resolve(xmlhttp.responseText,xmlhttp.status)
+      xmlhttp.send(data)
+      xmlhttp.onreadystatechange = ()=>{
+        if(xmlhttp.status === 200){
+          let responseData = xmlhttp.response || xmlhttp.responseText
+          responseData && resolve(JSON.parse(responseData))
         }else{
           reject(xmlhttp)
         }
@@ -48,9 +39,11 @@ export default {
     })
   },
   get: function(url, data){
-    return this.request(url,data,'GET')
+    return this.request(url,data)
   },
   post: function(url, data){
     return this.request(url,data,'POST')
   }
 }
+
+modules.exports = http
