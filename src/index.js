@@ -4,7 +4,7 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-06-27 22:53:06
+ * @LastEditTime: 2019-06-28 12:06:32
  */
 // import Toast from './toast'
 String.prototype.trim = function(){
@@ -14,110 +14,198 @@ String.prototype.pareTime = function(){
 	let t = this.split(':')
 	return t.map(item=>(item<10?'0'+item:item)).join(':')
 }
+Object.prototype.map = function(Fn){
+	let t = [],j = this.length
+	for(let index =0; index<j; index++){
+		t[index]= Fn(this[index],index)
+	}
+	return t
+};
 /**
  * @description: $http
  * @param {type} 
  * @return: 
  */
-let $http = {
-  baseUrl: '',
-  stringify: function(obj, prefix){
-    var pairs = []
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue
-      }
-      var value = obj[key]
-      var enkey = encodeURIComponent(key)
-      var pair
-      if (typeof value === 'object') {
-        pair = queryStringify(value, prefix ? prefix + '[' + enkey + ']' : enkey)
-      } else {
-        pair = (prefix ? prefix + '[' + enkey + ']' : enkey) + '=' + encodeURIComponent(value)
-      }
-      pairs.push(pair)
-    }
-    return pairs.join('&')
-  },
-  parseHeaders: function(headers){
-    let ignoreDuplicateOf = [
-      'age', 'authorization', 'content-length', 'content-type', 'etag',
-      'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-      'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-      'referer', 'retry-after', 'user-agent'
-    ];
-    let parsed = {}, key, val, i;
-    if (!headers) { return parsed; }
-    headers.split('\n').map(function parser(line) {
-      i = line.indexOf(':');
-      key = line.substr(0, i).trim().toLowerCase();
-      val = line.substr(i + 1).trim()
-      if (key) {
-        if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-          return;
-        }
-        if (key === 'set-cookie') {
-          parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-        } else {
-          parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-        }
-      }
-    })
-    return parsed;
-  },
-  request: function (url, data, Methods='GET'){
-    if(!url) return false
-    return new Promise((resolve,reject)=>{
-      /^http[s]?:\/\//.test(url)||(url = this.baseUrl+url)
-      data = this.stringify(data);
-      Methods == 'GET'&&(url += (url.indexOf('?') === -1 ? '?' : '&') + data)
-      let xmlhttp = new XMLHttpRequest()
-      xmlhttp.open(Methods,url,true)
-      xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded")
-      xmlhttp.send(data)
-      xmlhttp.onreadystatechange = ()=>{
-        if (!xmlhttp || xmlhttp.readyState !== 4) {
-          return;
-        }
-        if(xmlhttp.readyState === 4){
-          let response = {
-            headers: 'getAllResponseHeaders' in xmlhttp ? this.parseHeaders(xmlhttp.getAllResponseHeaders()) : null,
-            data: xmlhttp.response || xmlhttp.responseText,
-            status: xmlhttp.status,
-            requestURL: xmlhttp.responseURL,
-            request: xmlhttp
-          }
-          if(xmlhttp.status !== 200){
-            /json/.test(response.headers['content-type'])?reject(JSON.parse(response.data)):reject(response.data)
-          }
-          if(response.data){
-            /json/.test(response.headers['content-type'])?resolve(JSON.parse(response.data)):resolve(response.data)
-          }
-        }
-      }
-      xmlhttp.onerror = function() {
-        // Real errors are hidden from us by the browser
-        // onerror should only fire if it's a network error
-        reject({msg:'Network Error',config:{url, data, Methods}, xmlhttp})
-      }
-      xmlhttp.onabort = function() {
-        if (!request) {
-          return;
-        }
-        reject({msg:'Request aborted',config:{url, data, Methods}, xmlhttp})
-      }
-      xmlhttp.ontimeout = function() {
-        reject({msg:'timeout of Nam ms exceeded',config:{url, data, Methods}, xmlhttp});
-      }
-    })
-  },
-  get: function(url, data){
-    return this.request(url,data)
-  },
-  post: function(url, data){
-    return this.request(url,data,'POST')
+(function(w){
+  function http(data){
+    return http.fn.init(data)
   }
-}
+  //1.jQuery原型替换，2.给原型提供一个简写方式
+  http.fn = http.prototype = {
+    constructor : http,
+    version : '19.06.01',
+    toArray : function(){
+      return [].slice.call(this);
+    },
+    each : function(fun){
+      return jQuery.each(this, fun);
+    },
+    get : function(index){
+      if(index == undefined || index == null){
+          return this.toArray();
+      }
+      if(index >=0 && index < this.length){
+          return this[index];
+      }
+      if(index >= -(this.length - 1) && index < 0){
+          return this[this.length + index];
+      }else{
+          return undefined;
+      }
+    }
+  }
+  http.extend = http.fn.extend = function(object){
+    for(let key in object){
+      this[key] = object[key];
+    }
+  }
+  // Ajax
+  http.extend({
+    baseUrl:'http://dev.qiatia.cn',
+    parseHeaders: function(headers){
+      let ignoreDuplicateOf = [
+        'age', 'authorization', 'content-length', 'content-type', 'etag',
+        'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+        'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+        'referer', 'retry-after', 'user-agent'
+      ];
+      let parsed = {}, key, val, i;
+    
+      if (!headers) { return parsed; }
+    
+      headers.split('\n').map(function parser(line) {
+        i = line.indexOf(':');
+        key = line.substr(0, i).trim().toLowerCase();
+        val = line.substr(i + 1).trim()
+        if (key) {
+          if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+            return;
+          }
+          if (key === 'set-cookie') {
+            parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+          } else {
+            parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+          }
+        }
+      })
+      return parsed;
+    },
+    request: function({url, data, Methods='GET'}){
+      if(!url) return false
+      return new Promise((resolve,reject)=>{
+        /^http[s]?:\/\//.test(url)||(url = this.baseUrl+url)
+        data = this.stringify(data);
+        Methods == 'GET'&&(url += (url.indexOf('?') === -1 ? '?' : '&') + data)
+        let xmlhttp = new XMLHttpRequest()
+        xmlhttp.open(Methods,url,true)
+        xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded")
+        xmlhttp.send(data)
+        xmlhttp.onreadystatechange = function(){
+          if (!xmlhttp || xmlhttp.readyState !== 4) {
+            return;
+          }
+          if(xmlhttp.readyState === 4){
+            let response = {
+              headers: 'getAllResponseHeaders' in xmlhttp ? http.parseHeaders(xmlhttp.getAllResponseHeaders()) : null,
+              data: xmlhttp.response || xmlhttp.responseText,
+              status: xmlhttp.status,
+              requestURL: xmlhttp.responseURL,
+              request: xmlhttp
+            }
+            if(xmlhttp.status !== 200){
+              reject(response)
+            }
+            if(response.data){
+              /json/.test(response.headers['content-type'])?resolve(JSON.parse(response.data)):resolve(response.data)
+            }
+          }
+        }
+        xmlhttp.onerror = function() {
+          // Real errors are hidden from us by the browser
+          // onerror should only fire if it's a network error
+          reject({msg:'Network Error',config:{url, data, Methods}, xmlhttp})
+        }
+        xmlhttp.onabort = function() {
+          if (!request) {
+            return;
+          }
+          reject({msg:'Request aborted',config:{url, data, Methods}, xmlhttp})
+        }
+        xmlhttp.ontimeout = function() {
+          reject({msg:'timeout of Nam ms exceeded',config:{url, data, Methods}, xmlhttp});
+        }
+      })
+    },
+    stringify: function(obj, prefix){
+      var pairs = []
+      for (var key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+          continue
+        }
+        var value = obj[key]
+        var enkey = encodeURIComponent(key)
+        var pair
+        if (typeof value === 'object') {
+          pair = queryStringify(value, prefix ? prefix + '[' + enkey + ']' : enkey)
+        } else {
+          pair = (prefix ? prefix + '[' + enkey + ']' : enkey) + '=' + encodeURIComponent(value)
+        }
+        pairs.push(pair)
+      }
+      return pairs.join('&')
+    },
+    get: function(url, data){
+      return this.request({url,data})
+    },
+    post: function(url, data){
+      return this.request({url,data,Methods:'POST'})
+    }
+  })
+  let init = http.fn.init = function(data){
+    if(!data) return http
+    typeof data == 'string'&&(data = {url: data})
+    let param= {data: {}, Methods: 'GET',...data}
+    return http.request(param)
+  }
+  init.prototype = http.fn
+  w.$http = http
+})(window);
+
+/**
+ * @description: 全局Toats方法
+ * @param {type} 
+ * @return: this
+ */
+(function(w){
+  function toast (data){
+    if(!data) return this
+    typeof data == 'string'&&(data = {title: data})
+    let param= {duration: 3000,icon: 'none',...data}
+    // console.log(param)
+    return this.init(param)
+  }
+  toast.prototype.init=function(param){
+    const id = 'via_' + Math.round(Math.random() * 9999),
+      div = document.createElement("div");
+    div.innerHTML = `<p style="text-align:center"><i style="tia-icon ${param.icon}">${this.icon[param.icon]||''}</i>${param.title}</p>`
+    div.setAttribute("id", id);
+    div.setAttribute('class','tia-toast');
+    document.body.appendChild(div);
+    this.Dom = document.getElementById(id)
+    setTimeout(()=>{
+      this.Dom.style.bottom = 0
+    },0)
+    param.duration&&setTimeout(()=>this.hide(), param.duration)
+  }
+  toast.prototype.icon = {
+    load: `<svg t="1561692790956" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3330" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs><style type="text/css"></style></defs><path d="M1023.656987 520.833008c-1.429289 2.944336-2.658478 5.960136-4.173525 8.8473-7.003517 13.349562-18.080509 21.039138-33.145218 21.110603q-93.918598 0.385908-187.851488 0c-20.696109 0-37.604601-17.980459-37.676065-38.962426s16.879906-38.962425 37.633186-39.062475q93.93289-0.414494 187.851488 0c16.408241 0 30.115125 10.791134 35.517838 26.341801 0.528837 1.543632 1.229189 3.030093 1.843784 4.54514zM0.285874 505.110826c3.601809-11.062699 8.361342-21.653732 19.46692-26.856346a51.454413 51.454413 0 0 1 20.338786-5.316956c40.2202-0.485958 80.4404-0.300151 120.660599-0.214393 22.539892 0 39.534141 17.008542 39.491263 39.13394s-16.922785 38.991011-39.519848 39.03389q-59.615655 0.10005-119.231311 0c-20.453129 0-33.359611-9.461895-39.862877-29.071744A14.492993 14.492993 0 0 0 0.285874 519.403718zM504.824984 1023.942828c-1.943833-0.800402-3.887667-1.615097-5.845793-2.37262-15.079002-5.888672-24.297917-16.722684-25.569985-32.873653a227.256993 227.256993 0 0 1 0-34.874658c1.600804-21.224946 19.595556-36.446876 40.749037-35.446374a39.319748 39.319748 0 0 1 37.390207 38.590811c0.171515 8.575736 0 17.151471 0 25.727206 0 19.895707-10.190832 33.702641-29.257551 39.877171a27.442354 27.442354 0 0 0-3.15873 1.429289zM615.723538 261.817207c2.615599-7.146446 4.287868-14.993244 8.046898-21.610853q44.307967-77.8248 89.444922-155.2494c15.722182-26.984981 51.540171-29.214673 68.034169-4.287868 9.533359 14.421529 8.347049 29.114622-0.171514 43.750544-16.050918 27.556697-31.844565 55.213444-47.866898 82.827313-14.650215 25.341299-29.000279 50.868405-44.093573 75.923846a38.447881 38.447881 0 0 1-67.005081-1.600804c-3.044386-5.717157-4.087767-12.463402-6.388923-19.752778zM551.534157 131.323098c0 30.715426 0.128636 61.459438 0 92.146278-0.128636 20.896209-14.793144 36.975713-35.732232 39.67707-18.294903 2.358327-36.361119-10.119368-41.449388-28.85735a44.050695 44.050695 0 0 1-1.42929-11.277092q-0.128636-91.474513 0-182.863269c0-19.867121 13.563955-36.275362 31.673051-39.491262 18.852325-3.344537 37.090056 6.317459 43.87918 23.969181a48.595835 48.595835 0 0 1 2.858578 16.708392c0.343029 29.986489 0.2001 59.98727 0.200101 89.988052zM762.097051 408.033499c-18.237731-1.572218-33.688348-12.763553-38.262073-28.800179-5.059684-17.780358 1.643683-35.374909 18.309195-45.351348 21.439339-12.863603 43.193122-25.026855 64.832561-37.50455q46.952152-27.085032 93.918598-54.141478c20.338786-11.677293 43.0359-5.960136 54.312992 13.563956s5.073977 42.421305-15.050416 54.098598q-78.039194 45.322763-156.392831 90.045224c-6.631902 3.773324-14.450114 5.445592-21.668026 8.089777zM235.732694 103.780693c0.657473-17.694601 12.134666-33.645469 28.800179-38.733739 17.337279-5.274077 35.546424 1.958126 45.265591 18.495003 13.73547 23.383172 27.156496 46.937859 40.720451 70.421082 16.779856 29.028865 33.659762 58.014851 50.353861 87.100888 11.748758 20.496008 6.446095 43.850595-12.220423 54.956172C369.042504 307.6831 345.473524 301.580035 333.310272 280.698118q-45.737256-78.610909-90.674111-157.750656c-3.273072-5.8315-4.64519-12.74926-6.903467-19.166769zM103.194701 235.018034c6.460387 2.101055 13.506784 3.187315 19.281112 6.488973q66.290436 37.861873 132.080621 76.552733c17.151471 10.119368 24.01206 28.9574 18.123388 46.623416a38.59081 38.59081 0 0 1-40.791916 25.727206 46.680587 46.680587 0 0 1-17.365864-5.717157q-65.747306-37.333036-131.165876-75.309251C67.162318 300.022109 60.316023 282.999274 64.989799 265.490481S84.771162 236.390151 103.194701 235.018034zM103.423387 788.338786c-18.58076-1.272067-33.531126-12.620624-38.347831-29.900731a38.59081 38.59081 0 0 1 17.966166-44.179331q38.376417-22.625649 77.18162-44.636704c19.552677-11.062699 42.792921-5.402713 53.912791 12.592038a38.805204 38.805204 0 0 1-13.106582 54.155771c-26.298922 16.165262-53.198146 31.444364-80.040199 46.551951-5.302663 2.930043-11.720172 3.658981-17.565965 5.417006zM279.183088 960.239406c-32.873653-0.814695-51.654514-30.200882-38.59081-55.828039 9.73346-19.052426 20.696109-37.50455 31.958908-55.742281 8.718665-14.064206 25.155491-20.01005 40.96343-16.636927 16.465412 3.587516 28.228463 14.964659 30.015074 32.030372a45.437106 45.437106 0 0 1-4.087767 23.983474c-8.875886 17.866116-19.323991 34.974708-29.486237 52.169058-7.632405 13.120875-19.295405 19.895707-30.772598 20.024343zM748.604561 959.724862c-20.710401 0.54313-38.776618-16.922785-39.248284-37.933337s16.179554-38.905254 36.804199-39.405505c22.725699-0.557423 40.749037 15.922282 41.449389 37.919044 0.757523 21.596561-16.251019 38.819496-39.005304 39.419798z" p-id="3331"></path></svg>`
+  }
+  toast.prototype.hide=function(){
+    this.Dom.style.bottom = -this.Dom.offsetHeight+'px'
+    setTimeout(()=>(this.Dom.parentNode.removeChild(this.Dom)),300)
+  }
+  w.Toast = (options)=> new toast(options)
+})(window);
 
 /**
  * @description: $icon
@@ -139,6 +227,20 @@ const icon = {
   ,right: '<svg style="transform:rotate(180deg)" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 32 32"><path d="M22 16l-10.105-10.6-1.895 1.987 8.211 8.613-8.211 8.612 1.895 1.988 8.211-8.613z"></path></svg>'
 }
 
+/**
+ * @description: 播放器对象函数
+ * @param {
+ *    id: 歌单id
+ *    url: 后台服务url
+ *    audio: Html5 audio 对象
+ *    lyrics： 当前歌曲歌词组
+ *    $lrcView: 当前歌曲歌词 DOM 对象组
+ * } 
+ * @return: {
+ *    id: 当前列表播放id
+ *    detail: 当前歌单信息
+ * }
+ */
 function tia(id = 729837165, url = 'http://localhost:3000/'){
   $http.baseUrl = url
   $http.get('playlist/detail',{id: id}).then((res)=>{
@@ -178,11 +280,11 @@ tia.prototype.init = function(detail){
       <div class="tia-panel">
         <div class="tia-info"><p>${detail.list[0].name}<span class="tia-author"> - ${detail.list[0].artist}</span></p></div>
         <div class="tia-bar-warp"><div class="tia-bar" onclick="$Tia.DisplayX(event,'.tia-bar')"><span class='bar-control'></span></div>
-        <div class='tia-time-info'><span class='tia-now-time'>00:00</span>&nbsp;/&nbsp;<span class='tia-all-time'>00:00</span></div></div>
+        <div class='tia-time-info'><span class='tia-now-time'>00:00</span> / <span class='tia-all-time'>00:00</span></div></div>
         <div class="tia-control">
           <span class="tia-icon fast_rewind" onclick='$Tia.prevMusic()'>${icon.fast_rewind}</span>
           <span class="tia-icon music-control icon-play" onclick='$Tia.toggle()'>${icon.play}</span>
-          <span class="tia-icon fast_forward" onclick="$Tia.nextMusic()">'${icon.fast_rewind}</span>
+          <span class="tia-icon fast_forward" onclick="$Tia.nextMusic()">${icon.fast_rewind}</span>
           <span class="tia-icon volume">${icon.volume}<div class='volume-control' onclick="$Tia.volumeX(event,'.volume-control')"><span></span></div></span>
           <span class="tia-icon order-switch order1" onclick='$Tia.orderSwitch()'>${icon.repeat}</span>
           <span class="tia-icon menu-switch" onclick='$Tia.menuSwitch()'>${icon.menu}</span>
@@ -199,72 +301,159 @@ tia.prototype.init = function(detail){
   div.innerHTML = template;
   document.body.appendChild(div);
   // 初始化自身变量, 开始监听
-  this.playStatus = false
   this.id = 0
+  this.$lrcView = []
   // 音频监听
   this.audio = document.getElementById("tia-audio")
-  this.audio.addEventListener('ended', ()=>( this.next() ), false);
+  // 时间
+  this.$_nowtime = document.getElementsByClassName("tia-now-time")[0]
+  this.$_allTime = document.getElementsByClassName("tia-all-time")[0]
+  // 封面上按钮 歌曲名 歌词wrap 进度wrap
+  this.$_control = document.getElementsByClassName('music-control')
+  this.$_title = document.getElementsByClassName("tia-info")[0]
+  // 歌词 wrap
+  this.$_lrcWrap = document.getElementsByClassName("lrc-content")[0]
+  this.$_barControl = document.getElementsByClassName("bar-control")[0]
+  // 播放结束 
+  let index = 0, i = 0 // 会闭包的播放控制变量 
+  this.audio.addEventListener('ended', ()=>{
+    index = 0
+    i = 0
+    console.warn('onEnded')
+    this.pause()
+    Toast('即将播放下一首')
+    return this.next()
+  }, false);
   // 播放歌词监听
   this.audio.addEventListener("timeupdate", ({target})=>{
     let currentTime = target.currentTime
-    if(parseInt(currentTime)-1 > this.i){
-      // this.$barControl.style.width =  (currentTime.toFixed(0)/target.duration.toFixed(0))*100+'%';
-      // this.$nowtime.innerHTML = parseInt(currentTime/60)+':'+ (currentTime.toFixed(0)%60);
-      this.i++;
+    if(currentTime > index){
+      this.$_barControl.style.width =  ~~(currentTime/this.allTime*100)+'%';
+      this.$_nowtime.innerHTML = (~~(currentTime/60)+':'+ ~~(currentTime%60)).pareTime()
+      index++
     }
-    for (var i = 1, l = this.lyrics.length - 1; i < l; i++) {
+    // 这歌算法可以优化
+    if(this.$lrcView[i]&&this.lyrics.length>1) {
       if (currentTime > this.lyrics[i][0]) {
         try {
-          this.viaLrc.style.webkitTransform = "translateY(-" + (1.2 * i) + "em)";
-          this.viaLrc.style.msTransform = "translateY(-" + (1.2 * i) + "em)";
-          this.lrcview[i].className = 'lrc-cursor';
-          this.lrcview[i - 1].className = ''
+          this.$_lrcWrap.style.webkitTransform = "translateY(-" + (1.2 * i) + "em)";
+          this.$_lrcWrap.style.msTransform = "translateY(-" + (1.2 * i) + "em)";
+          this.$lrcView[i].className = 'lrc-cursor';
+          i>0&&(this.$lrcView[i - 1].className = '')
         } catch (e) {
           console.log(e)
         }
+        i++
       }
     }
   });
+  // 播放监听
+  let tiaList
+  this.audio.addEventListener('play', ()=>{
+    console.warn('onPlay')
+    i = 0
+    tiaList&& (tiaList.className = '')
+    tiaList = document.querySelectorAll('.tia-list>ol>li')[this.id];
+    tiaList.className = 'select';
+    index = 0
+  });
   // 监听  封面地图。 播放切换监听
   this.$_Pic = document.getElementById('tia-toggle')
-  this.$_Pic.style.background='url('+detail.cover+')'
   this.$_Pic.onclick = ()=>(this.toggle())
-  
-  this.title = document.querySelector(".tia-info"), this.tiaLrc = document.querySelector(".lrc-content");
-  this.tiaBarControl = document.querySelector(".bar-control"), this.tiaNowtime = document.querySelector(".tia-now-time"), this.tiaAllTime = document.querySelector(".tia-all-time");
+  // 初始化第一首歌
+  return this.player(this.id)
+}
+tia.prototype.getlyric = function(id){
+  // let mId = this.detail.list[this.id].id
+  $http.get('lyric',{id}).then((res)=>{
+    // 整理歌词
+    if(res.code!==200){
+      Toast('歌词搜索失败')
+      return;
+    }
+    // 请求成功 ==> 但是没有歌词
+    if(!res.lrc){
+      this.parseLyric('[00:00.00] 这是一首没有歌词孤独的歌')
+      return;
+    }
+    this.parseLyric(res.lrc.lyric)
+  }).catch(e=>{
+    Toast('歌词搜索失败')
+    console.warn(e)
+  })
+}
+tia.prototype.parseLyric= function(lrc){
+  let lyrics = decodeURIComponent(lrc).split("\n"),
+    result = [];
+  for (let i in lyrics) {
+    let text = lyrics[i];
+    let timeReg = /\[\d*:\d*((\.|\:)\d*)*\]/g;
+    let timeRegExpArr = text.match(timeReg);
+    if (!timeRegExpArr) continue;
+    let clause = text.replace(timeReg, '');
+    for (let k = 0, h = timeRegExpArr.length; k < h; k++) {
+      let t = timeRegExpArr[k];
+      let min = Number(String(t.match(/\[\d*/i)).slice(1)),
+        sec = Number(String(t.match(/\:\d*/i)).slice(1)),
+        hs = Number(String(t.match(/\.\d*/i)).slice(1));
+      let time = min * 60 + sec + '.' + hs;
+      result.push([time, clause])
+    }
+  }
+  this.lyrics = result
+  // 渲染歌词
+  let temp = '<header></header>';
+  for (let i in result) {
+    temp += '<p>' + result[i][1] + '</p>'
+  }
+  this.$_lrcWrap.innerHTML = temp
+  this.$lrcView = document.querySelectorAll('.lrc-content>p')
+  // console.log(this.$lrcView)
 }
 tia.prototype.toggle = function(){
-  console.log(this.playStatus)
-
-  if(this.playStatus){
-    this.pause()
-  }else{
-    this.play()
-  }
+  console.info(this.audio.paused)
+  if(this.audio.paused) this.play()
+  else this.pause()
 }
 tia.prototype.pause = function(){
-  this.playStatus = false
+  this.$_control.map(item=>{
+    item.innerHTML = icon.play
+    item.className = 'tia-icon music-control icon-play'
+  })
   return this.audio.pause()
 }
 tia.prototype.play=function(){
-  // console.log(this.audio)
   this.audio.play().then(()=>{
     // do some thing
-    this.playStatus = true
     let allTime = this.allTime = this.audio.duration
     this.$_allTime.innerHTML = (~~(allTime/60) +":"+(~~allTime%60)).pareTime()
+    this.$_control.map(item=>{
+      item.innerHTML = icon.pause
+      item.className = 'tia-icon music-control icon-pause'
+    })
   }).catch(e=>{
     this.next()
+    Toast(e.toString())
     console.warn(e)
   })
 }
 tia.prototype.next=function(){
   // 切换歌曲
-  let t = this.detail.list[++this.id]
-  this.audio.src = t.src
-  this.$_Pic.style.background='url('+t.pic+')'
-  // 播放歌曲
-  this.play()
+  this.player(++this.id).then(()=>{
+    this.play()
+  })
+}
+tia.prototype.player = function(id){
+  return new Promise((resolve, reject)=>{
+    let t = this.detail.list[id]
+    this.audio.src = t.src
+    this.$_Pic.style.background='url('+t.pic+')'
+    this.$_title.innerHTML = '<p>' + t.name + '<span class="via-author"> - ' + t.artist + '</span></p>'
+    // 获取歌词
+    this.getlyric(t.id)
+    // 播放歌曲
+    resolve()
+  })
 }
 
 const $Tia = (options)=>{
