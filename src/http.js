@@ -1,7 +1,6 @@
-String.prototype.trim = function(){
+function trim(){
   return this.replace(/^\s*/, '').replace(/\s*$/, '');
 }
-
 const http = {
   baseUrl: '',
   stringify: function(obj, prefix){
@@ -33,8 +32,8 @@ const http = {
     if (!headers) { return parsed; }
     headers.split('\n').map(function parser(line) {
       i = line.indexOf(':');
-      key = line.substr(0, i).trim().toLowerCase();
-      val = line.substr(i + 1).trim()
+      key =trim(line.substr(0, i)).toLowerCase();
+      val =trim(line.substr(i + 1))
       if (key) {
         if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
           return;
@@ -101,5 +100,4 @@ const http = {
     return this.request(url,data,'POST')
   }
 }
-
 modules.exports = http

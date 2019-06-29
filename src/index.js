@@ -4,7 +4,7 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-06-28 12:06:32
+ * @LastEditTime: 2019-06-30 00:21:14
  */
 // import Toast from './toast'
 String.prototype.trim = function(){
@@ -241,15 +241,20 @@ const icon = {
  *    detail: 当前歌单信息
  * }
  */
-function tia(id = 729837165, url = 'http://localhost:3000/'){
+function tia(id = 729837165, url = '/'){
   $http.baseUrl = url
-  $http.get('playlist/detail',{id: id}).then((res)=>{
+  $http.get('playlist/'+id).then((res)=>{
     // console.log(res)
     let detail= this.detail = this.parse(res)
     this.init(detail)
-  })
+  }).catch(e=>Toast(e.toString()))
   // this.init(id) 
 }
+/**
+ * @description: 格式化歌单
+ * @param {type} 
+ * @return: 
+ */
 tia.prototype.parse = function({playlist,privileges}){
   let list = playlist.tracks.map(({name,ar,al,id})=>{
     return{
@@ -260,42 +265,45 @@ tia.prototype.parse = function({playlist,privileges}){
       src: 'https://music.163.com/song/media/outer/url?id='+id+'.mp3'
     }
   })
-  let listInner = ''
-  for (let i in list) {
-    listInner += '<li onclick="$Tia.listplay(' + i + ');">'+list[i].name + '<span class="list-right">' + list[i].artist + '</span></li>'
-  }
   return {
     list,
-    listInner,
     name: playlist.name,
     cover: playlist.coverImgUrl,
   }
 }
+/**
+ * @description: 初始化播放器
+ * @param {type} 
+ * @return: 
+ */
 tia.prototype.init = function(detail){
+  let listInner = ''
+  for (let i in detail.list) {
+    listInner += '<li data-id="' + i + '">'+detail.list[i].name + '<span class="list-right">' + detail.list[i].artist + '</span></li>'
+  }
   // 网页渲控件
   const template = `
-    <div class="tia-list"><ol>${detail.listInner}</ol></div>
+    <div class="tia-list"><ol>${listInner}</ol></div>
     <div class="tia-body">
       <div class="tia-pic" id="tia-toggle"><div class="tia-icon music-control icon-play">${icon.play}</div></div>
       <div class="tia-panel">
         <div class="tia-info"><p>${detail.list[0].name}<span class="tia-author"> - ${detail.list[0].artist}</span></p></div>
-        <div class="tia-bar-warp"><div class="tia-bar" onclick="$Tia.DisplayX(event,'.tia-bar')"><span class='bar-control'></span></div>
+        <div class="tia-bar-warp"><div class="tia-bar"><span class='bar-control'></span></div>
         <div class='tia-time-info'><span class='tia-now-time'>00:00</span> / <span class='tia-all-time'>00:00</span></div></div>
         <div class="tia-control">
-          <span class="tia-icon fast_rewind" onclick='$Tia.prevMusic()'>${icon.fast_rewind}</span>
-          <span class="tia-icon music-control icon-play" onclick='$Tia.toggle()'>${icon.play}</span>
-          <span class="tia-icon fast_forward" onclick="$Tia.nextMusic()">${icon.fast_rewind}</span>
-          <span class="tia-icon volume">${icon.volume}<div class='volume-control' onclick="$Tia.volumeX(event,'.volume-control')"><span></span></div></span>
-          <span class="tia-icon order-switch order1" onclick='$Tia.orderSwitch()'>${icon.repeat}</span>
-          <span class="tia-icon menu-switch" onclick='$Tia.menuSwitch()'>${icon.menu}</span>
-          <span class="tia-icon lrc-switch" onclick="$Tia.lrcSwitch()">${icon.panel}</span>
+          <span class="tia-icon fast_rewind">${icon.fast_rewind}</span>
+          <span class="tia-icon music-control icon-play">${icon.play}</span>
+          <span class="tia-icon fast_forward">${icon.fast_rewind}</span>
+          <span class="tia-icon volume">${icon.volume}<div class='volume-control'><span></span></div></span>
+          <span class="tia-icon order-switch order1" >${icon.repeat}</span>
+          <span class="tia-icon menu-switch">${icon.menu}</span>
+          <span class="tia-icon lrc-switch">${icon.panel}</span>
         </div>
       </div>
-      <div class="panel-switch" onclick="$Tia.panelSwitch()">${icon.left}</div>
+      <div class="panel-switch">${icon.left}</div>
     </div>
     <div class="tia-lrc"><div class="lrc-content"></div></div>
-    <audio id="tia-audio" src="${detail.list[0].src}"></audio>
-  `
+    <audio id="tia-audio" src="${detail.list[0].src}"></audio>`
   var div = document.createElement("div");
   div.setAttribute("id", "Tia");
   div.innerHTML = template;
@@ -305,6 +313,7 @@ tia.prototype.init = function(detail){
   this.$lrcView = []
   // 音频监听
   this.audio = document.getElementById("tia-audio")
+  this.audio.volume = 0.8
   // 时间
   this.$_nowtime = document.getElementsByClassName("tia-now-time")[0]
   this.$_allTime = document.getElementsByClassName("tia-all-time")[0]
@@ -316,14 +325,6 @@ tia.prototype.init = function(detail){
   this.$_barControl = document.getElementsByClassName("bar-control")[0]
   // 播放结束 
   let index = 0, i = 0 // 会闭包的播放控制变量 
-  this.audio.addEventListener('ended', ()=>{
-    index = 0
-    i = 0
-    console.warn('onEnded')
-    this.pause()
-    Toast('即将播放下一首')
-    return this.next()
-  }, false);
   // 播放歌词监听
   this.audio.addEventListener("timeupdate", ({target})=>{
     let currentTime = target.currentTime
@@ -336,8 +337,7 @@ tia.prototype.init = function(detail){
     if(this.$lrcView[i]&&this.lyrics.length>1) {
       if (currentTime > this.lyrics[i][0]) {
         try {
-          this.$_lrcWrap.style.webkitTransform = "translateY(-" + (1.2 * i) + "em)";
-          this.$_lrcWrap.style.msTransform = "translateY(-" + (1.2 * i) + "em)";
+          this.$_lrcWrap.style.transform = "translateY(-" + (1.2 * i) + "em)";
           this.$lrcView[i].className = 'lrc-cursor';
           i>0&&(this.$lrcView[i - 1].className = '')
         } catch (e) {
@@ -348,24 +348,120 @@ tia.prototype.init = function(detail){
     }
   });
   // 播放监听
-  let tiaList
-  this.audio.addEventListener('play', ()=>{
-    console.warn('onPlay')
-    i = 0
-    tiaList&& (tiaList.className = '')
-    tiaList = document.querySelectorAll('.tia-list>ol>li')[this.id];
-    tiaList.className = 'select';
-    index = 0
+  this.audio.addEventListener('play', (e)=>{
+    // this.onPl
   });
+  // 自然暂停监听
+  this.audio.addEventListener('ended', ()=>{
+    this.pause()
+    i = 0
+    index = 0
+    this.$_lrcWrap.style.transform = "translateY(0em)";
+    Toast('即将播放下一首')
+    return this.next()
+  }, false);
+  // 播放进度
+  this.$('tia-bar').onclick=(e)=>{
+    let audio = this.audio
+    try{
+      let x = this.$DisplayX(e)*audio.duration
+      if('fastSeek' in audio){
+        audio.fastSeek(x)
+      }else{
+        audio.currentTime = x
+      }
+      index = 0
+      i = 0
+    }
+    catch(e){
+      Toast(e.toString())
+    }
+  }
+  this.handleBtn()
+  // 初始化第一首歌
+  return this.player(detail.list[this.id])
+}
+/**
+ * @description: 处理一些按钮监听
+ * @param {type} 
+ * @return: 
+ */
+tia.prototype.handleBtn=function(){
   // 监听  封面地图。 播放切换监听
   this.$_Pic = document.getElementById('tia-toggle')
   this.$_Pic.onclick = ()=>(this.toggle())
-  // 初始化第一首歌
-  return this.player(this.id)
+  // 面版切换 = 监听
+  this.$_panelSwitch = document.getElementsByClassName('panel-switch')[0]
+  this.$_panelSwitch.onclick = (e)=>{this.panelSwitch(e)}
+  // 面板中的播放控制
+  this.$_control[1].onclick=()=>{ this.toggle() }
+  this.$('fast_forward').onclick=()=>{ this.next() }
+  this.$('fast_rewind').onclick=()=>{ this.prev() }
+  // 歌词显示
+  this.$('lrc-switch').onclick=()=>{
+    let t = this.$('tia-lrc')
+    if(t.style.height!=='0px') t.style.height = 0
+    else t.style.height = '2.5em'
+  }
+  // 列表切换
+  let tia_List
+  this.$('menu-switch').onclick=()=>{
+    tia_List && (tia_List.className = '') // 清楚上次的信息
+    tia_List = document.querySelectorAll('.tia-list>ol>li')[this.id]
+    tia_List.className = 'select';
+    let t = this.$('tia-list')
+    // 跳转到本次播放列表位置
+    tia_List&&t.scrollTo(0,tia_List.offsetTop - 100)
+    if(t.style.height!=='15em') t.style.height = '15em'
+    else t.style.height = 0
+  }
+  // 音量控制
+  this.$('volume-control').onclick=(e)=>{
+    let t = this.$DisplayX(e)/2
+    console.info(t)
+    this.audio.volume = t
+    e.target.style.width = t*100+'%'
+  }
+  // 列表条跳转
+  document.querySelectorAll('.tia-list>ol>li').map(item=>{
+    item.onclick=({target:{dataset:{id}}})=>{
+      this.id = id
+      this.player(this.detail.list[id]).then(()=>{
+        this.play().then(()=>{
+          // this.$('tia-list').scrollTo(0,this.$('select').offsetTop - 100)
+        })
+      }).catch(e=>{
+        Toast(e.toString)
+      })
+    }
+  })
 }
+/**
+ * @description: 面板切换
+ * @param {type} 
+ * @return: 
+ */
+tia.prototype.panelSwitch = function(){
+  let className = this.$_panelSwitch.className
+  if(/on/.test(className)){
+    // 关闭
+    this.$('tia-list').style.height=0
+		this.$('tia-panel').style.width= "0";
+    this.$_panelSwitch.className = 'panel-switch'
+  }else{
+    // 打开
+		this.$('tia-panel').style.width= "15.1em";
+    this.$_panelSwitch.className = 'panel-switch on'
+  }
+}
+/**
+ * @description: 异步获取歌词
+ * @param {type} 
+ * @return: 
+ */
 tia.prototype.getlyric = function(id){
   // let mId = this.detail.list[this.id].id
-  $http.get('lyric',{id}).then((res)=>{
+  $http.get('lyric/'+id).then((res)=>{
     // 整理歌词
     if(res.code!==200){
       Toast('歌词搜索失败')
@@ -382,6 +478,11 @@ tia.prototype.getlyric = function(id){
     console.warn(e)
   })
 }
+/**
+ * @description: 渲染处理歌词
+ * @param {type} 
+ * @return: 
+ */
 tia.prototype.parseLyric= function(lrc){
   let lyrics = decodeURIComponent(lrc).split("\n"),
     result = [];
@@ -410,11 +511,21 @@ tia.prototype.parseLyric= function(lrc){
   this.$lrcView = document.querySelectorAll('.lrc-content>p')
   // console.log(this.$lrcView)
 }
+/**
+ * @description: 播放切换
+ * @param {type} 
+ * @return: 
+ */
 tia.prototype.toggle = function(){
-  console.info(this.audio.paused)
+  // console.info(this.audio.paused)
   if(this.audio.paused) this.play()
   else this.pause()
 }
+/**
+ * @description: 暂停播放
+ * @param {type} 
+ * @return: 
+ */
 tia.prototype.pause = function(){
   this.$_control.map(item=>{
     item.innerHTML = icon.play
@@ -422,40 +533,109 @@ tia.prototype.pause = function(){
   })
   return this.audio.pause()
 }
+/**
+ * @description: 播放
+ * @param {type} 
+ * @return: 
+ */
 tia.prototype.play=function(){
-  this.audio.play().then(()=>{
-    // do some thing
-    let allTime = this.allTime = this.audio.duration
-    this.$_allTime.innerHTML = (~~(allTime/60) +":"+(~~allTime%60)).pareTime()
-    this.$_control.map(item=>{
-      item.innerHTML = icon.pause
-      item.className = 'tia-icon music-control icon-pause'
+  return new Promise((resolve, reject)=>{
+    this.audio.play().then(()=>{
+      // do some thing
+      let allTime = this.allTime = this.audio.duration
+      this.$_allTime.innerHTML = (~~(allTime/60) +":"+(~~allTime%60)).pareTime()
+      this.$_control.map(item=>{
+        item.innerHTML = icon.pause
+        item.className = 'tia-icon music-control icon-pause'
+      })
+      resolve()
+    }).catch(e=>{
+      Toast(e.toString())
+      console.warn(e)
+      setTimeout(this.next,500)
+      reject()
     })
-  }).catch(e=>{
-    this.next()
-    Toast(e.toString())
-    console.warn(e)
   })
 }
+/**
+ * @description: 下一曲
+ * @param {type} 
+ * @return: 
+ */
 tia.prototype.next=function(){
   // 切换歌曲
-  this.player(++this.id).then(()=>{
+  let t = this.detail.list[++this.id]
+  if(!t){
+    Toast('已经最好一首了.')
+    t = this.detail.list[this.id=0]
+  }
+  this.player(t).then(()=>{
     this.play()
   })
 }
-tia.prototype.player = function(id){
-  return new Promise((resolve, reject)=>{
-    let t = this.detail.list[id]
-    this.audio.src = t.src
-    this.$_Pic.style.background='url('+t.pic+')'
-    this.$_title.innerHTML = '<p>' + t.name + '<span class="via-author"> - ' + t.artist + '</span></p>'
-    // 获取歌词
-    this.getlyric(t.id)
-    // 播放歌曲
-    resolve()
+/**
+ * @description: 上一曲
+ * @param {type} 
+ * @return: 
+ */
+tia.prototype.prev=function() {
+  if (this.id <= 0) {
+    Toast('已经第一首了！');
+    return false
+  }
+  let t = this.detail.list[--this.id]
+  this.player(t).then(()=>{
+    this.play()
   })
 }
-
+/**
+ * @description: 列表播放
+ * @param {type} 
+ * @return: 
+ */
+tia.prototype.player = function(t){
+  // if(!t) Toast('已经没有了')
+  return new Promise((resolve, reject)=>{
+    try {
+      this.audio.src = t.src
+      this.$_Pic.style.background='url('+t.pic+')'
+      this.$_title.innerHTML = '<p>' + t.name + '<span class="via-author"> - ' + t.artist + '</span></p>'
+      // 获取歌词
+      this.getlyric(t.id)
+      // 播放歌曲
+      resolve()
+    }
+    catch(e){
+      Toast(e.toString())
+    }
+  })
+}
+/**
+ * @description: 选择器
+ * @param {type} 
+ * @return: 
+ */
+tia.prototype.$=function(val){
+  if(/#/.test(val)) return document.getElementById(val)
+  return document.getElementsByClassName(val)[0]
+}
+/**
+ * @description: 计算元素点击的宽度百分比
+ * @param {
+ *  event: 事件
+ * } 
+ * @return: 
+ */
+tia.prototype.$DisplayX = function({target,clientX}){
+  // console.log(event)
+  let left ,parent = target.offsetParent
+  left = target.offsetLeft;
+  while(parent = parent.offsetParent){
+    left+=parent.offsetLeft
+  }
+  let t = (clientX-left+document.documentElement.scrollLeft)/target.offsetWidth
+  return t
+}
 const $Tia = (options)=>{
   return new tia(options)
 }

@@ -1,10 +1,12 @@
 // 引入相应模块
 const http = require('http'),
-	 url = require('url'),
+  url = require('url'),
 	path = require('path'),
-	  fs = require('fs');
+  fs = require('fs');
+
+const  { playlist, lyric } = require('./serve/index')
 	  
-const port = process.argv[2] || 8888;
+const port = process.argv[2] || 8080;
 
 const types = {
 	'css': 'text/css',
@@ -15,9 +17,30 @@ const types = {
 site = 'http://localhost:' + port;
 
 http.createServer(function (request, response) {
-  var uri = url.parse(request.url).pathname,
-  filename = path.join(__dirname, uri);
-  
+  let uri = url.parse(request.url).pathname
+  if(/^\/playlist\//.test(uri)){
+    playlist(uri.replace(/^\/playlist\//,'')).then(res=>{
+      console.log("playlist:", res.status)
+      response.writeHead(res.status, {'Content-Type': 'application/json; charset=UTF-8'})
+      response.write(res.body)
+      // response.getWriter().print(JSON.toJSONString(res));
+      response.end()
+    }).catch(e=>{
+      console.warn('Error:',e)
+    })
+    return false
+  }else if(/^\/lyric\//.test(uri)){
+    lyric(uri.replace(/^\/lyric\//,'')).then(res=>{
+      console.log("lyric:", res.status)
+      response.writeHead(res.status, {'Content-Type': 'application/json; charset=UTF-8'});
+      response.write(res.body);
+      response.end();
+    }).catch(e=>{
+      console.warn('Error:',e)
+    })
+    return false
+  }
+  let filename = path.join(__dirname, uri)
   fs.exists(filename, function (exists) {
     if (!exists) {
       response.writeHead(404, {'Content-Type': 'text/plain', 'X-my-param':'zcyue'});
@@ -38,4 +61,4 @@ http.createServer(function (request, response) {
   });
 }).listen(parseInt(port, 10));
 
-console.log('Static file server running at\n => ' + site + '/\nCTRL + C to shutdown');
+console.log('server running at \n => ' + site + '/\n CTRL + C to shutdown');
