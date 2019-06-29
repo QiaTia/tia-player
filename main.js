@@ -39,26 +39,27 @@ http.createServer(function (request, response) {
       console.warn('Error:',e)
     })
     return false
-  }
-  let filename = path.join(__dirname, uri)
-  fs.exists(filename, function (exists) {
-    if (!exists) {
-      response.writeHead(404, {'Content-Type': 'text/plain', 'X-my-param':'zcyue'});
-      response.write('404 Not Found\n');
-      response.end();
-      return;
-    }
-
-    if(!fs.lstatSync(filename).isDirectory()) {
-        var type = filename.split('.');
-        type = type[type.length - 1];
-        response.writeHead(200, { 'Content-Type': types[type] + '; charset=utf-8' });
-        fs.createReadStream(filename).pipe(response);
-    } else {
-        response.writeHead(301, {'Location': site + '/index.html' });
+  }else{
+    let filename = path.join(__dirname, uri)
+    fs.exists(filename, function (exists) {
+      if (!exists) {
+        response.writeHead(404, {'Content-Type': 'text/plain', 'X-my-param':'zcyue'});
+        response.write('404 Not Found\n');
         response.end();
-    }
-  });
+        return;
+      }
+  
+      if(!fs.lstatSync(filename).isDirectory()) {
+          var type = filename.split('.');
+          type = type[type.length - 1];
+          response.writeHead(200, { 'Content-Type': types[type] + '; charset=utf-8' });
+          fs.createReadStream(filename).pipe(response);
+      } else {
+          response.writeHead(301, {'Location': site + '/index.html' });
+          response.end();
+      }
+    });
+  }
 }).listen(parseInt(port, 10));
 
 console.log('server running at \n => ' + site + '/\n CTRL + C to shutdown');
