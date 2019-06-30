@@ -19,8 +19,9 @@ site = 'http://localhost:' + port;
 http.createServer(function (request, response) {
   let uri = url.parse(request.url).pathname
   if(/^\/playlist\//.test(uri)){
-    playlist(uri.replace(/^\/playlist\//,'')).then(res=>{
-      console.log("playlist:", res.status)
+    let id = uri.replace(/^\/playlist\//,'')
+    playlist(id).then(res=>{
+      console.log("playlist:", id)
       response.writeHead(res.status, {'Content-Type': 'application/json; charset=UTF-8'})
       response.write(res.body)
       // response.getWriter().print(JSON.toJSONString(res));
@@ -30,8 +31,9 @@ http.createServer(function (request, response) {
     })
     return false
   }else if(/^\/lyric\//.test(uri)){
-    lyric(uri.replace(/^\/lyric\//,'')).then(res=>{
-      console.log("lyric:", res.status)
+    let id = uri.replace(/^\/lyric\//,'')
+    lyric(id).then(res=>{
+      console.log("lyric:", id)
       response.writeHead(res.status, {'Content-Type': 'application/json; charset=UTF-8'});
       response.write(res.body);
       response.end();
@@ -55,8 +57,8 @@ http.createServer(function (request, response) {
           response.writeHead(200, { 'Content-Type': types[type] + '; charset=utf-8' });
           fs.createReadStream(filename).pipe(response);
       } else {
-          response.writeHead(301, {'Location': site + '/index.html' });
-          response.end();
+        response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        fs.createReadStream(path.join(__dirname,'/index.html')).pipe(response);
       }
     });
   }

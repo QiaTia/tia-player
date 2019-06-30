@@ -4,6 +4,52 @@
   bottom: 0;
   background-color: rgba(0, 0, 0, 0);
   z-index: 4000;
+  // 歌手控制区域
+  .tia-pic {
+    width: 4.1rem;
+    height: 100%;
+    position: relative;
+    cursor: pointer;
+    background-size: cover !important;
+    background-position: center !important;
+    background-color: #eee;
+    float: left;
+    .tia-icon {
+      position: absolute;
+      border-radius: 50%;
+      fill: #FFF;
+      border: solid 2px #FFF;
+      transition: all .2s ease
+    }
+    .icon-play {
+      width: 2rem;
+      height: 2rem;
+      bottom: 50%;
+      right: 50%;
+      margin: 0 -1rem -1rem 0
+    }
+    .icon-play>svg {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      width: 25px;
+      height: 25px;
+      margin: 0
+    }
+    .icon-pause {
+      width: 1rem;
+      height: 1rem;
+      bottom: 3px;
+      right: 3px
+    }
+    .icon-pause>svg {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      margin: 0
+    }
+  }
+  // 列表区域
   .tia-list {
     background-color: #fff;
     border-radius: 3px 3px 0 0;
@@ -36,59 +82,18 @@
         color: #ff4081
       }
     }
+    .list-right {
+      color: #666;
+      font-size: 14px;
+      float: right;
+      text-align: right
+    }
   }
-  .list-right {
-    color: #666;
-    font-size: 14px;
-    float: right;
-    text-align: right
-  }
+  // 
   .tia-body {
     height: 4.1rem;
-    .tia-pic {
-      width: 4.1rem;
-      height: 100%;
-      position: relative;
-      cursor: pointer;
-      background-size: cover !important;
-      background-position: center !important;
-      background-color: #eee;
-      float: left;
-      .tia-icon {
-        position: absolute;
-        border-radius: 50%;
-        fill: #FFF;
-        border: solid 2px #FFF;
-        transition: all .2s ease
-      }
-      .icon-play {
-        width: 2rem;
-        height: 2rem;
-        bottom: 50%;
-        right: 50%;
-        margin: 0 -1rem -1rem 0
-      }
-      .icon-play>svg {
-        position: absolute;
-        top: 2px;
-        left: 3px;
-        width: 25px;
-        height: 25px;
-        margin: 0
-      }
-      .icon-pause {
-        width: 1rem;
-        height: 1rem;
-        bottom: 3px;
-        right: 3px
-      }
-      .icon-pause>svg {
-        position: absolute;
-        width: 12px;
-        height: 12px;
-        margin: 0
-      }
-    }
+    
+    // m面板
     .tia-panel {
       background-color: #fff;
       border-top: solid 1px #ccc;
@@ -96,133 +101,134 @@
       float: left;
       transition: all .3s ease;
       overflow: hidden;
-      width: 0
+      width: 0;
+      // 标题信息
+      .tia-info {
+        color: #444;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        padding-left: 8px;
+        height: 1.5rem;
+        overflow: hidden;
+        .tia-author {
+          font-size: .8rem;
+          opacity: .8
+        }
+      }
+      
+      .tia-bar-warp {
+        height: .5rem;
+        width: 100%;
+        padding: 0 .5rem;
+        // 进度条
+        .tia-bar {
+          margin-top: 3px;
+          height: 2px;
+          width: 100%;
+          float: left;
+          background-color: #eee;
+          border-radius: 3px;
+          cursor: pointer;
+          .bar-control {
+            height: 2px;
+            width: 0;
+            display: block;
+            transition: all .5s ease;
+            background-color: #666;
+            &::after {
+              content: '';
+              width: 8px;
+              height: 8px;
+              float: right;
+              border-radius: 50%;
+              background: radial-gradient(#FFF, #666);
+              margin-right: -3px;
+              margin-top: -3px;
+              animation: tia-rotate 3s ease-out infinite;
+            }
+          }
+        }
+      }
+      
+      .tia-time-info {
+        height: 0.5em;
+        margin-top: -1.5em;
+        margin-right: -.8em;
+        float: right;
+        font-size: 12px;
+        color: #666;
+        transform: scale(.8);
+      }
+      
+      // 控制栏
+      .tia-control {
+        padding-left: 1rem;
+        .volume-control{
+          span {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 2px;
+            background-color: #3eaf7c
+          }
+        }
+        .tia-icon {
+          width: 2rem;
+          height: 2rem;
+          float: left;
+          fill: #666;
+          cursor: pointer
+        }
+        .tia-icon>svg {
+          width: 26px;
+          height: 26px;
+          margin: 3px 0 3px 0
+        }
+        .tia-icon:hover {
+          fill: #444;
+          // box-shadow:
+        }
+        .fast_forward>svg {
+          transform: rotate(180deg)
+        }
+        // 音量控制
+        .volume{
+          &:hover>.volume-control {
+            width: 100%
+          }
+          .volume-control {
+            position: relative;
+            background-color: #aaa;
+            width: 0;
+            height: 5px;
+            border-radius: 2px;
+            transition: all .5s ease;
+            margin-top: -42px;
+            cursor: pointer;
+          }
+        }
+      }
     }
     .on>svg {
       transform: rotate(180deg)
     }
-  }
-  
-  .panel-switch {
-    cursor: pointer;
-    width: 1rem;
-    height: 100%;
-    float: left;
-    background-color: #ccc;
-    border-radius: 0 3px 0 3px;
-    fill: #fff;
-    svg {
+    // 面板切换
+    .panel-switch {
+      cursor: pointer;
+      width: 1rem;
       height: 100%;
-      width: 1rem
-    }
-  }
-  
-  .tia-info>p {
-    color: #444;
-    font-size: 1rem;
-    line-height: 1.5rem;
-    padding-left: 8px;
-    height: 1.5rem;
-    overflow: hidden
-  }
-  
-  p>.tia-author {
-    font-size: .8rem;
-    opacity: .8
-  }
-  
-  .tia-bar-warp {
-    height: .5rem;
-    width: 100%;
-    padding: 0 .5rem;
-  }
-  
-  .tia-bar-warp>.tia-bar {
-    margin-top: 3px;
-    height: 2px;
-    width: 100%;
-    float: left;
-    background-color: #eee;
-    border-radius: 3px;
-    cursor: pointer
-  }
-  
-  .tia-bar{
-    .bar-control {
-      height: 2px;
-      width: 0;
-      display: block;
-      transition: all .5s ease;
-      background-color: #666
-    }
-    .bar-control::after {
-      content: '';
-      width: 8px;
-      height: 8px;
-      float: right;
-      border-radius: 50%;
-      background: radial-gradient(#FFF, #666);
-      margin-right: -3px;
-      margin-top: -3px
-    }
-  }
-  
-  .tia-time-info {
-    height: 0.5em;
-    margin-top: -1.5em;
-    margin-right: -.8em;
-    float: right;
-    font-size: 12px;
-    color: #666;
-    transform: scale(.8);
-  }
-  
-  .volume:hover>.volume-control {
-    width: 80%
-  }
-  
-  .volume-control {
-    position: relative;
-    background-color: #aaa;
-    width: 0;
-    height: 5px;
-    border-radius: 2px;
-    transition: all .5s ease;
-    margin-top: -42px;
-    cursor: pointer;
-  }
-
-  .tia-control {
-    padding-left: 1rem;
-    .volume-control{
-      span {
-        display: block;
-        width: 100%;
+      float: left;
+      background-color: #ccc;
+      border-radius: 0 3px 0 3px;
+      fill: #fff;
+      svg {
         height: 100%;
-        border-radius: 2px;
-        background-color: #3eaf7c
+        width: 1rem
       }
     }
-    .tia-icon {
-      width: 2rem;
-      height: 2rem;
-      float: left;
-      fill: #666;
-      cursor: pointer
-    }
-    .tia-icon>svg {
-      width: 26px;
-      height: 26px;
-      margin: 3px 0 3px 0
-    }
-    .tia-icon:hover {
-      fill: #444;
-      // box-shadow:
-    }
-    .fast_forward>svg {
-      transform: rotate(180deg)
-    }
   }
+  
+  // 歌词区域
   .tia-lrc {
     position: absolute;
     bottom: 10px;
@@ -253,18 +259,44 @@
 }
 div.tia-toast {
   width: 100%;
-  z-index: 999;
+  z-index: 4999;
   transition: all .3s ease;
   background-color: #323232;
   position: fixed;
   bottom: -100px;
   left: 0;
   color: #ccc;
+  display: flex;
   p{
+    flex: 1;
     padding: 10px 16px;
   }
+  .tia-icon{
+    margin: 0 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    svg {
+      width: 26px;
+      height: 26px;
+      fill: #eee;
+    }
+    &.load{
+      animation: tia-rotate 1.6s linear infinite;
+    }
+  }
 }
-
+@keyframes tia-rotate{
+  0%{
+    transform: rotateZ(0deg)
+  }
+  50%{
+    transform: rotateZ(180deg)
+  }
+  100%{
+    transform: rotateZ(360deg)
+  }
+}
 @media (min-width:600px) {
   div.tia-toast {
     border-radius: 6px;    
