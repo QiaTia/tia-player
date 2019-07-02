@@ -129,31 +129,37 @@
           background-color: #eee;
           border-radius: 3px;
           cursor: pointer;
+          &:hover .bar-control::after{
+            background: radial-gradient(#FFF, #42b983);
+          }
           .bar-control {
             height: 2px;
             width: 0;
             display: block;
-            transition: all .5s ease;
-            background-color: #666;
+            transition: all .3s ease;
+            background-color: #42b983;
             &::after {
               content: '';
               width: 8px;
               height: 8px;
+              transition: all .3s ease;
               float: right;
               border-radius: 50%;
-              background: radial-gradient(#FFF, #666);
+              // background-color: transparent;
+              background: radial-gradient(#FFF, #42b983);
+              background-size: 180% 100%;
               margin-right: -3px;
               margin-top: -3px;
-              animation: tia-rotate 3s ease-out infinite;
+              animation: tia-rotate 3s linear infinite;
             }
           }
         }
       }
       
       .tia-time-info {
-        height: 0.5em;
-        margin-top: -1.5em;
-        margin-right: -.8em;
+        height: 0.5rem;
+        margin-top: -1.5rem;
+        margin-right: -.8rem;
         float: right;
         font-size: 12px;
         color: #666;
@@ -163,15 +169,6 @@
       // 控制栏
       .tia-control {
         padding-left: 1rem;
-        .volume-control{
-          span {
-            display: block;
-            width: 100%;
-            height: 100%;
-            border-radius: 2px;
-            background-color: #3eaf7c
-          }
-        }
         .tia-icon {
           width: 2rem;
           height: 2rem;
@@ -193,8 +190,8 @@
         }
         // 音量控制
         .volume{
-          &:hover>.volume-control {
-            width: 100%
+          &:hover>.volume-control{
+            width: 120px
           }
           .volume-control {
             position: relative;
@@ -204,7 +201,15 @@
             border-radius: 2px;
             transition: all .5s ease;
             margin-top: -42px;
+            overflow: hidden;
             cursor: pointer;
+            span {
+              display: block;
+              width: 80%;
+              height: 100%;
+              border-radius: 2px;
+              background-color: #999
+            }
           }
         }
       }

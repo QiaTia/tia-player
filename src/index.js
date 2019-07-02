@@ -4,8 +4,10 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-06-30 08:58:37
+ * @LastEditTime: 2019-07-02 10:49:41
  */
+const _VERSION = '19.07.01'
+
 // import Toast from './toast'
 String.prototype.trim = function(){
   return this.replace(/^\s*/, '').replace(/\s*$/, '');
@@ -315,27 +317,28 @@ tia.prototype.init = function(detail){
   div.innerHTML = template;
   document.body.appendChild(div);
   // 初始化自身变量, 开始监听
-  this.id = 0
+  this._id = 0
   this.$lrcView = []
+  this._orderIndex = 0
   // 音频监听
-  this.audio = document.getElementById("tia-audio")
+  this.audio = this.$("#tia-audio")
   this.audio.volume = 0.8
   // 时间
-  this.$_nowtime = document.getElementsByClassName("tia-now-time")[0]
-  this.$_allTime = document.getElementsByClassName("tia-all-time")[0]
+  this.$_nowtime = this.$("tia-now-time")
+  this.$_allTime = this.$("tia-all-time")
   // 封面上按钮 歌曲名 歌词wrap 进度wrap
   this.$_control = document.getElementsByClassName('music-control')
-  this.$_title = document.getElementsByClassName("tia-info")[0]
+  this.$_title = this.$("tia-info")
   // 歌词 wrap
-  this.$_lrcWrap = document.getElementsByClassName("lrc-content")[0]
-  this.$_barControl = document.getElementsByClassName("bar-control")[0]
+  this.$_lrcWrap = this.$("lrc-content")
+  this.$_barControl = this.$("bar-control")
   // 播放结束 
   let index = 0, i = 0 // 会闭包的播放控制变量 
   // 播放歌词监听
   this.audio.addEventListener("timeupdate", ({target})=>{
     let currentTime = target.currentTime
     if(currentTime > index){
-      this.$_barControl.style.width =  ~~(currentTime/this.allTime*100)+'%';
+      this.$_barControl.style.width =  ~~(currentTime/this._allTime*100)+'%';
       this.$_nowtime.innerHTML = (~~(currentTime/60)+':'+ ~~(currentTime%60)).pareTime()
       index++
     }
@@ -356,6 +359,7 @@ tia.prototype.init = function(detail){
   // 播放监听
   this.audio.addEventListener('play', (e)=>{
     // this.onPl
+    this._allTime = e.target.duration
   });
   // 自然暂停监听 <==> 播放下一首
   this.audio.addEventListener('ended', ()=>{
@@ -367,22 +371,22 @@ tia.prototype.init = function(detail){
     return this.next()
   }, false);
   // 资源改版监听 ==> 被动下一首
-  this.audio.ondurationchange=(e)=>{
-    index = 0, i = 0
-  }
+  this.audio.addEventListener('durationchange',(e)=>{
+    index = 0; i = 0
+  })
   // 网速失速  --> 网络状态不良
-  this.audio.onstalled=(e)=>{
+  this.audio.addEventListener('stalled',(e)=>{
     Toast({
       title:'网络不太好呢',
       icon: 'load',
       duration: 5000
     })
-  }
+  })
   // 请求出错时
-  this.audio.onerror =(e)=>{
+  this.audio.addEventListener('error',(e)=>{
     Toast(e.toString())
     this.next()
-  }
+  })
   // 播放进度
   this.$('tia-bar').onclick=(e)=>{
     let audio = this.audio
@@ -394,7 +398,16 @@ tia.prototype.init = function(detail){
         audio.currentTime = x
       }
       index = 0
-      i = 0
+      setTimeout(()=>{
+        let j = 0, len = this.lyrics.length, currentTime =audio.currentTime
+        for(j; j<len; j++){
+          // console.log(currentTime, this.lyrics[j][0])
+          if(!this.$lrcView[j] || currentTime < this.lyrics[j][0]) break;
+        }
+        i = j
+        this.$_lrcWrap.style.transform = "translateY(-" + (1.2 * i) + "rem)"
+        this.$lrcView[i].className = 'lrc-cursor'
+      },10)
     }
     catch(e){
       Toast(e.toString())
@@ -402,7 +415,7 @@ tia.prototype.init = function(detail){
   }
   this.handleBtn()
   // 初始化第一首歌
-  return this.player(detail.list[this.id])
+  return this.player(detail.list[this._id])
 }
 /**
  * @description: 处理一些按钮监听
@@ -411,10 +424,10 @@ tia.prototype.init = function(detail){
  */
 tia.prototype.handleBtn=function(){
   // 监听  封面地图。 播放切换监听
-  this.$_Pic = document.getElementById('tia-toggle')
+  this.$_Pic = this.$('#tia-toggle')
   this.$_Pic.onclick = ()=>(this.toggle())
   // 面版切换 = 监听
-  this.$_panelSwitch = document.getElementsByClassName('panel-switch')[0]
+  this.$_panelSwitch = this.$('panel-switch')
   this.$_panelSwitch.onclick = (e)=>{this.panelSwitch(e)}
   // 面板中的播放控制
   this.$_control[1].onclick=()=>{ this.toggle() }
@@ -430,7 +443,7 @@ tia.prototype.handleBtn=function(){
   let tia_List
   this.$('menu-switch').onclick=()=>{
     tia_List && (tia_List.className = '') // 清楚上次的信息
-    tia_List = document.querySelectorAll('.tia-list>ol>li')[this.id]
+    tia_List = document.querySelectorAll('.tia-list>ol>li')[this._id]
     tia_List.className = 'select';
     let t = this.$('tia-list')
     // 跳转到本次播放列表位置
@@ -448,7 +461,7 @@ tia.prototype.handleBtn=function(){
   // 列表条跳转
   document.querySelectorAll('.tia-list>ol>li').map(item=>{
     item.onclick=({target:{dataset:{id}}})=>{
-      this.id = id
+      this._id = id
       this.player(this.detail.list[id]).then(()=>{
         this.play().then(()=>{
           // this.$('tia-list').scrollTo(0,this.$('select').offsetTop - 100)
@@ -458,6 +471,19 @@ tia.prototype.handleBtn=function(){
       })
     }
   })
+  let _this = this
+  this.$('order-switch').onclick=function(e){
+    _this._orderIndex++
+    let index = _this._orderIndex%3
+    Toast(_this._orderArr[index])
+    _this.audio.loop = false
+    if(index === 1) this.innerHTML = icon.random
+    else if(index===2){
+      _this.audio.loop = true
+      this.innerHTML = icon.repeat_one
+    }
+    else this.innerHTML = icon.repeat
+  }
 }
 /**
  * @description: 面板切换
@@ -483,7 +509,7 @@ tia.prototype.panelSwitch = function(){
  * @return: 
  */
 tia.prototype.getlyric = function(id){
-  // let mId = this.detail.list[this.id].id
+  // let mId = this.detail.list[this._id].id
   $http.get('lyric/'+id).then((res)=>{
     // 整理歌词
     if(res.code!==200){
@@ -565,7 +591,7 @@ tia.prototype.play=function(){
   return new Promise((resolve, reject)=>{
     this.audio.play().then(()=>{
       // do some thing
-      let allTime = this.allTime = this.audio.duration
+      let allTime = this._allTime = this.audio.duration
       this.$_allTime.innerHTML = (~~(allTime/60) +":"+(~~allTime%60)).pareTime()
       this.$_control.map(item=>{
         item.innerHTML = icon.pause
@@ -585,12 +611,13 @@ tia.prototype.play=function(){
  * @param {type} 
  * @return: 
  */
-tia.prototype.next=function(){
+tia.prototype.next = function(){
   // 切换歌曲
-  let t = this.detail.list[++this.id]
+  if(this._orderIndex%3 === 1) this._id = ~~(Math.random()*$.detail.list.length);// 随机取一首歌
+  let t = this.detail.list[++this._id]
   if(!t){
     Toast('已经最好一首了.')
-    t = this.detail.list[this.id=0]
+    t = this.detail.list[this._id=0]
   }
   this.player(t).then(()=>{
     this.play()
@@ -602,11 +629,13 @@ tia.prototype.next=function(){
  * @return: 
  */
 tia.prototype.prev=function() {
-  if (this.id <= 0) {
+  if(this._orderIndex%3 === 1) this._id = ~~(Math.random()*$.detail.list.length);// 随机取一首歌
+  if (this._id <= 0) {
     Toast('已经第一首了！');
     return false
   }
-  let t = this.detail.list[--this.id]
+  let index = _this._orderIndex%3
+  let t = this.detail.list[--this._id]
   this.player(t).then(()=>{
     this.play()
   })
@@ -639,7 +668,8 @@ tia.prototype.player = function(t){
  * @return: 
  */
 tia.prototype.$=function(val){
-  if(/#/.test(val)) return document.getElementById(val)
+  if(/^#/.test(val)) return document.getElementById(val.replace(/^#/,''))
+  // if(/^./.test(val)) return document.getElementsByClassName(val.replace(/^./,''))[0]
   return document.getElementsByClassName(val)[0]
 }
 /**
@@ -659,6 +689,8 @@ tia.prototype.$DisplayX = function({target,clientX}){
   let t = (clientX-left+document.documentElement.scrollLeft)/target.offsetWidth
   return t
 }
+tia.prototype._orderArr = {0:"顺序播放",1:"随机播放",2:"单曲循环"}
 const $Tia = (options)=>{
+  console.log(`${'\n'}%c TiaPlayer v${_VERSION} %c https://qiatia.cn ${'\n'}`, 'color: #eee; background: #030307; padding:3px 0;', 'background: #fadfa3; color:#42b983; padding: 3px 0;');
   return new tia(options)
 }

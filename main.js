@@ -21,7 +21,7 @@ http.createServer(function (request, response) {
   if(/^\/playlist\//.test(uri)){
     let id = uri.replace(/^\/playlist\//,'')
     playlist(id).then(res=>{
-      console.log("playlist:", id)
+      console.log("\033[40;34m playlist:", id+'\033[0m')
       response.writeHead(res.status, {'Content-Type': 'application/json; charset=UTF-8'})
       response.write(res.body)
       // response.getWriter().print(JSON.toJSONString(res));
@@ -33,7 +33,7 @@ http.createServer(function (request, response) {
   }else if(/^\/lyric\//.test(uri)){
     let id = uri.replace(/^\/lyric\//,'')
     lyric(id).then(res=>{
-      console.log("lyric:", id)
+      console.log("\033[40;34m lyric:", id+'\033[0m')
       response.writeHead(res.status, {'Content-Type': 'application/json; charset=UTF-8'});
       response.write(res.body);
       response.end();
@@ -64,4 +64,4 @@ http.createServer(function (request, response) {
   }
 }).listen(parseInt(port, 10));
 
-console.log('server running at \n => ' + site + '/\n CTRL + C to shutdown');
+console.log('\033[42;30m DONE \033[40;32m server is running at  \033[0m\n --> \033[40;33m ' + site + '\033[0m \n CTRL + C to shutdown');
