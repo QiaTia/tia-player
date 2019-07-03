@@ -4,7 +4,7 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-07-03 19:06:14
+ * @LastEditTime: 2019-07-03 20:15:32
  */
 const _VERSION = '19.07.01'
 
@@ -12,10 +12,20 @@ import Toast from './toast'
 import $http from './http'
 import './tia.less'
 
+/**
+ * @description: 格式化时间显示
+ * @param {type} 
+ * @return: 
+ */
 function pareTime(val){
 	let t = val.split(':')
 	return t.map(item=>(item<10?'0'+item:item)).join(':')
 }
+/**
+ * @description: 给Object 定义一个map方法
+ * @param {Object,Fn} 
+ * @return: 
+ */
 function ObjectMap(_this,Fn){
 	let t = [],j = _this.length
 	for(let index =0; index<j; index++){
@@ -25,7 +35,7 @@ function ObjectMap(_this,Fn){
 };
 
 /**
- * @description: $icon
+ * @description: svg_icon
  * @param {type} 
  * @return: 
  */
@@ -265,7 +275,7 @@ tia.prototype.handleBtn=function(){
     tia_List.className = 'select';
     let t = this.$('tia-list')
     // 跳转到本次播放列表位置
-    tia_List&&t.scrollTo(0,tia_List.offsetTop - 100)
+    tia_List&&t.scrollTo&&t.scrollTo(0,tia_List.offsetTop - 100)
     if(t.style.height!=='15rem') t.style.height = '15rem'
     else t.style.height = 0
   }

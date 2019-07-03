@@ -1,3 +1,8 @@
+/**
+ * @description: 左右去空
+ * @param {type} 
+ * @return: 
+ */
 function trim(val){
   return val.replace(/^\s*/, '').replace(/\s*$/, '');
 }

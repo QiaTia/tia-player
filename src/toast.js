@@ -11,9 +11,9 @@ function toast (data){
   return this.init(param)
 }
 toast.prototype.init=function(param){
-  const id = 'Tia_' + Math.round(Math.random() * 9999),
+  const id = 'via_' + Math.round(Math.random() * 9999),
     div = document.createElement("div");
-  div.innerHTML = `<p style="text-align:center"><i style="tia-icon ${param.icon}">${this.icon[param.icon]||''}</i>${param.title}</p>`
+  div.innerHTML = `<i class="tia-icon ${param.icon}">${this.icon[param.icon]||''}</i><p>${param.title}</p>`
   div.setAttribute("id", id);
   div.setAttribute('class','tia-toast');
   document.body.appendChild(div);

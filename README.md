@@ -29,7 +29,7 @@ cd TiaPlayer
 
 npm insatll
 
-npm run test  // 本地调试
+npm run serve  // 本地调试 会启动一个node后台服务
 
 npm run build  // 编译
 

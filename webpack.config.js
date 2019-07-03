@@ -1,7 +1,10 @@
 const path = require('path');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 module.exports = {
   entry: ["@babel/polyfill",'./src/index.js'],
+  devtool: false,
+  // plugins: [ new BundleAnalyzerPlugin({ analyzerPort: 8919 })],
   module: {
     rules: [
       {

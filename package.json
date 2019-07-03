@@ -4,9 +4,8 @@
   "description": "tia-music-palyer",
   "main": "index.js",
   "scripts": {
-    "test": "lessc src/tia.less dist/tia.css && babel src --out-dir dist && node main",
-    "serve": "webpack --config webpack.config.js",
-    "build": "lessc src/tia.less dist/tia.css && babel src --out-dir dist"
+    "serve": "webpack --config webpack.config && node main",
+    "build": "webpack -p --config webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +34,7 @@
     "less-loader": "^5.0.0",
     "style-loader": "^0.23.1",
     "webpack": "^4.35.2",
+    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.5"
   },
   "dependencies": {
