@@ -4,210 +4,25 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-07-02 10:49:41
+ * @LastEditTime: 2019-07-03 19:06:14
  */
 const _VERSION = '19.07.01'
 
-// import Toast from './toast'
-String.prototype.trim = function(){
-  return this.replace(/^\s*/, '').replace(/\s*$/, '');
-}
-String.prototype.pareTime = function(){
-	let t = this.split(':')
+import Toast from './toast'
+import $http from './http'
+import './tia.less'
+
+function pareTime(val){
+	let t = val.split(':')
 	return t.map(item=>(item<10?'0'+item:item)).join(':')
 }
-Object.prototype.map = function(Fn){
-	let t = [],j = this.length
+function ObjectMap(_this,Fn){
+	let t = [],j = _this.length
 	for(let index =0; index<j; index++){
-		t[index]= Fn(this[index],index)
+		t[index]= Fn(_this[index],index)
 	}
 	return t
 };
-/**
- * @description: $http
- * @param {type} 
- * @return: 
- */
-(function(w){
-  function http(data){
-    return http.fn.init(data)
-  }
-  //1.jQuery原型替换，2.给原型提供一个简写方式
-  http.fn = http.prototype = {
-    constructor : http,
-    version : '19.06.01',
-    toArray : function(){
-      return [].slice.call(this);
-    },
-    each : function(fun){
-      return jQuery.each(this, fun);
-    },
-    get : function(index){
-      if(index == undefined || index == null){
-          return this.toArray();
-      }
-      if(index >=0 && index < this.length){
-          return this[index];
-      }
-      if(index >= -(this.length - 1) && index < 0){
-          return this[this.length + index];
-      }else{
-          return undefined;
-      }
-    }
-  }
-  http.extend = http.fn.extend = function(object){
-    for(let key in object){
-      this[key] = object[key];
-    }
-  }
-  // Ajax
-  http.extend({
-    baseUrl:'http://dev.qiatia.cn',
-    parseHeaders: function(headers){
-      let ignoreDuplicateOf = [
-        'age', 'authorization', 'content-length', 'content-type', 'etag',
-        'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-        'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-        'referer', 'retry-after', 'user-agent'
-      ];
-      let parsed = {}, key, val, i;
-    
-      if (!headers) { return parsed; }
-    
-      headers.split('\n').map(function parser(line) {
-        i = line.indexOf(':');
-        key = line.substr(0, i).trim().toLowerCase();
-        val = line.substr(i + 1).trim()
-        if (key) {
-          if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-            return;
-          }
-          if (key === 'set-cookie') {
-            parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-          } else {
-            parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-          }
-        }
-      })
-      return parsed;
-    },
-    request: function({url, data, Methods='GET'}){
-      if(!url) return false
-      return new Promise((resolve,reject)=>{
-        /^http[s]?:\/\//.test(url)||(url = this.baseUrl+url)
-        data = this.stringify(data);
-        Methods == 'GET'&&(url += (url.indexOf('?') === -1 ? '?' : '&') + data)
-        let xmlhttp = new XMLHttpRequest()
-        xmlhttp.open(Methods,url,true)
-        xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded")
-        xmlhttp.send(data)
-        xmlhttp.onreadystatechange = function(){
-          if (!xmlhttp || xmlhttp.readyState !== 4) {
-            return;
-          }
-          if(xmlhttp.readyState === 4){
-            let response = {
-              headers: 'getAllResponseHeaders' in xmlhttp ? http.parseHeaders(xmlhttp.getAllResponseHeaders()) : null,
-              data: xmlhttp.response || xmlhttp.responseText,
-              status: xmlhttp.status,
-              requestURL: xmlhttp.responseURL,
-              request: xmlhttp
-            }
-            if(xmlhttp.status !== 200){
-              reject(response)
-            }
-            if(response.data){
-              /json/.test(response.headers['content-type'])?resolve(JSON.parse(response.data)):resolve(response.data)
-            }
-          }
-        }
-        xmlhttp.onerror = function() {
-          // Real errors are hidden from us by the browser
-          // onerror should only fire if it's a network error
-          reject({msg:'Network Error',config:{url, data, Methods}, xmlhttp})
-        }
-        xmlhttp.onabort = function() {
-          if (!request) {
-            return;
-          }
-          reject({msg:'Request aborted',config:{url, data, Methods}, xmlhttp})
-        }
-        xmlhttp.ontimeout = function() {
-          reject({msg:'timeout of Nam ms exceeded',config:{url, data, Methods}, xmlhttp});
-        }
-      })
-    },
-    stringify: function(obj, prefix){
-      var pairs = []
-      for (var key in obj) {
-        if (!obj.hasOwnProperty(key)) {
-          continue
-        }
-        var value = obj[key]
-        var enkey = encodeURIComponent(key)
-        var pair
-        if (typeof value === 'object') {
-          pair = queryStringify(value, prefix ? prefix + '[' + enkey + ']' : enkey)
-        } else {
-          pair = (prefix ? prefix + '[' + enkey + ']' : enkey) + '=' + encodeURIComponent(value)
-        }
-        pairs.push(pair)
-      }
-      return pairs.join('&')
-    },
-    get: function(url, data){
-      return this.request({url,data})
-    },
-    post: function(url, data){
-      return this.request({url,data,Methods:'POST'})
-    }
-  })
-  let init = http.fn.init = function(data){
-    if(!data) return http
-    typeof data == 'string'&&(data = {url: data})
-    let param= {data: {}, Methods: 'GET',...data}
-    return http.request(param)
-  }
-  init.prototype = http.fn
-  w.$http = http
-})(window);
-
-/**
- * @description: 全局Toats方法
- * @param {type} 
- * @return: this
- */
-(function(w){
-  function toast (data){
-    if(!data) return this
-    typeof data == 'string'&&(data = {title: data})
-    let param= {duration: 3000,icon: 'none',...data}
-    // console.log(param)
-    return this.init(param)
-  }
-  toast.prototype.init=function(param){
-    const id = 'via_' + Math.round(Math.random() * 9999),
-      div = document.createElement("div");
-    div.innerHTML = `<i class="tia-icon ${param.icon}">${this.icon[param.icon]||''}</i><p>${param.title}</p>`
-    div.setAttribute("id", id);
-    div.setAttribute('class','tia-toast');
-    document.body.appendChild(div);
-    this.Dom = document.getElementById(id)
-    setTimeout(()=>{
-      this.Dom.style.bottom = 0
-    },0)
-    param.duration&&setTimeout(()=>this.hide(), param.duration)
-  }
-  toast.prototype.icon = {
-    load: `<svg t="1561855857132" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5530" width="200" height="200"><path d="M512 0a51.2 51.2 0 0 1 51.2 51.2v153.6a51.2 51.2 0 0 1-102.4 0V51.2a51.2 51.2 0 0 1 51.2-51.2z m362.0352 149.9648a51.2 51.2 0 0 1 0 72.3968L765.44 330.9568a51.2 51.2 0 0 1-72.3968-72.3968l108.544-108.5952a51.2 51.2 0 0 1 72.448 0zM1024 512a51.2 51.2 0 0 1-51.2 51.2h-153.6a51.2 51.2 0 0 1 0-102.4h153.6a51.2 51.2 0 0 1 51.2 51.2z m-149.9648 362.0352a51.2 51.2 0 0 1-72.3968 0l-108.5952-108.5952a51.2 51.2 0 0 1 72.3968-72.3968l108.5952 108.544a51.2 51.2 0 0 1 0 72.448zM512 1024a51.2 51.2 0 0 1-51.2-51.2v-153.6a51.2 51.2 0 0 1 102.4 0v153.6a51.2 51.2 0 0 1-51.2 51.2z m-362.0352-149.9648a51.2 51.2 0 0 1 0-72.3968l108.5952-108.5952a51.2 51.2 0 1 1 72.3968 72.3968l-108.544 108.5952a51.2 51.2 0 0 1-72.448 0zM0 512a51.2 51.2 0 0 1 51.2-51.2h153.6a51.2 51.2 0 1 1 0 102.4H51.2a51.2 51.2 0 0 1-51.2-51.2z m149.9648-362.0352a51.2 51.2 0 0 1 72.3968 0L330.9568 258.56A51.2 51.2 0 1 1 258.56 330.9568L150.016 222.4128a51.2 51.2 0 0 1 0-72.448z" p-id="5531"></path></svg>`
-  }
-  toast.prototype.hide=function(){
-    this.Dom.style.bottom = -this.Dom.offsetHeight+'px'
-    setTimeout(()=>(this.Dom.parentNode.removeChild(this.Dom)),300)
-  }
-  w.Toast = (options)=> new toast(options)
-})(window);
 
 /**
  * @description: $icon
@@ -287,17 +102,19 @@ tia.prototype.parse = function({playlist,privileges}){
 tia.prototype.init = function(detail){
   let listInner = ''
   for (let i in detail.list) {
-    listInner += '<li data-id="' + i + '">'+detail.list[i].name + '<span class="list-right">' + detail.list[i].artist + '</span></li>'
+    listInner += '<li data-id="' + i + '"><span>'+detail.list[i].name + '</span><span class="list-right">' + detail.list[i].artist + '</span></li>'
   }
   // 网页渲控件
   const template = `
     <div class="tia-list"><ol>${listInner}</ol></div>
     <div class="tia-body">
-      <div class="tia-pic" id="tia-toggle"><div class="tia-icon music-control icon-play">${icon.play}</div></div>
+      <div class="tia-pic tia-toggle"><div class="tia-icon music-control icon-play">${icon.play}</div></div>
       <div class="tia-panel">
-        <div class="tia-info"><p>${detail.list[0].name}<span class="tia-author"> - ${detail.list[0].artist}</span></p></div>
-        <div class="tia-bar-warp"><div class="tia-bar"><span class='bar-control'></span></div>
-        <div class='tia-time-info'><span class='tia-now-time'>00:00</span> / <span class='tia-all-time'>00:00</span></div></div>
+        <div class="tia-info">
+          <div class="m-info">${detail.list[0].name}<span class="tia-author"> - ${detail.list[0].artist}</span></div>
+          <div class='tia-time-info'><span class='tia-now-time'>00:00</span> / <span class='tia-all-time'>00:00</span></div>
+        </div>
+        <div class="tia-bar-warp"><div class="tia-bar"><span class='bar-control'></span></div></div>
         <div class="tia-control">
           <span class="tia-icon fast_rewind">${icon.fast_rewind}</span>
           <span class="tia-icon music-control icon-play">${icon.play}</span>
@@ -311,24 +128,25 @@ tia.prototype.init = function(detail){
       <div class="panel-switch">${icon.left}</div>
     </div>
     <div class="tia-lrc"><div class="lrc-content"></div></div>
-    <audio id="tia-audio" src="${detail.list[0].src}"></audio>`
+    <audio class="tia-audio" src="${detail.list[0].src}"></audio>`
   var div = document.createElement("div");
-  div.setAttribute("id", "Tia");
+  div.setAttribute("class", "Tia-player tia-fixed");
   div.innerHTML = template;
   document.body.appendChild(div);
+  this.$DOM = div
   // 初始化自身变量, 开始监听
   this._id = 0
   this.$lrcView = []
   this._orderIndex = 0
   // 音频监听
-  this.audio = this.$("#tia-audio")
+  this.audio = this.$("tia-audio")
   this.audio.volume = 0.8
   // 时间
   this.$_nowtime = this.$("tia-now-time")
   this.$_allTime = this.$("tia-all-time")
   // 封面上按钮 歌曲名 歌词wrap 进度wrap
-  this.$_control = document.getElementsByClassName('music-control')
-  this.$_title = this.$("tia-info")
+  this.$_control = this.$DOM.getElementsByClassName('music-control')
+  this.$_title = this.$("m-info")
   // 歌词 wrap
   this.$_lrcWrap = this.$("lrc-content")
   this.$_barControl = this.$("bar-control")
@@ -339,14 +157,14 @@ tia.prototype.init = function(detail){
     let currentTime = target.currentTime
     if(currentTime > index){
       this.$_barControl.style.width =  ~~(currentTime/this._allTime*100)+'%';
-      this.$_nowtime.innerHTML = (~~(currentTime/60)+':'+ ~~(currentTime%60)).pareTime()
+      this.$_nowtime.innerHTML = pareTime(~~(currentTime/60)+':'+ ~~(currentTime%60))
       index++
     }
     // 这歌算法可以优化
     if(this.$lrcView[i]&&this.lyrics.length>1) {
       if (currentTime > this.lyrics[i][0]) {
         try {
-          this.$_lrcWrap.style.transform = "translateY(-" + (1.2 * i) + "em)";
+          this.$_lrcWrap.style.transform = "translateY(-" + (1.2 * i) + "rem)";
           this.$lrcView[i].className = 'lrc-cursor';
           i>0&&(this.$lrcView[i - 1].className = '')
         } catch (e) {
@@ -366,7 +184,7 @@ tia.prototype.init = function(detail){
     this.pause()
     i = 0
     index = 0
-    this.$_lrcWrap.style.transform = "translateY(0em)";
+    this.$_lrcWrap.style.transform = "translateY(0rem)";
     Toast('即将播放下一首')
     return this.next()
   }, false);
@@ -424,7 +242,7 @@ tia.prototype.init = function(detail){
  */
 tia.prototype.handleBtn=function(){
   // 监听  封面地图。 播放切换监听
-  this.$_Pic = this.$('#tia-toggle')
+  this.$_Pic = this.$('tia-toggle')
   this.$_Pic.onclick = ()=>(this.toggle())
   // 面版切换 = 监听
   this.$_panelSwitch = this.$('panel-switch')
@@ -437,31 +255,36 @@ tia.prototype.handleBtn=function(){
   this.$('lrc-switch').onclick=()=>{
     let t = this.$('tia-lrc')
     if(t.style.height!=='0px') t.style.height = 0
-    else t.style.height = '2.5em'
+    else t.style.height = '2.5rem'
   }
   // 列表切换
-  let tia_List
+  let tia_List, tia_all_list = this.$DOM.querySelectorAll('.tia-list>ol>li')
   this.$('menu-switch').onclick=()=>{
     tia_List && (tia_List.className = '') // 清楚上次的信息
-    tia_List = document.querySelectorAll('.tia-list>ol>li')[this._id]
+    tia_List = tia_all_list[this._id]
     tia_List.className = 'select';
     let t = this.$('tia-list')
     // 跳转到本次播放列表位置
     tia_List&&t.scrollTo(0,tia_List.offsetTop - 100)
-    if(t.style.height!=='15em') t.style.height = '15em'
+    if(t.style.height!=='15rem') t.style.height = '15rem'
     else t.style.height = 0
   }
+  let _this = this
+
   // 音量控制
-  this.$('volume-control').onclick=(e)=>{
-    let t = this.$DisplayX(e)/2
-    console.info(t)
-    this.audio.volume = t
-    e.target.style.width = t*100+'%'
+  this.$('volume-control').onclick=function(e){
+    let t = _this.$DisplayX(e,this)
+    // console.info(t)
+    _this.audio.volume = t
+    this.getElementsByTagName('span')[0].style.width = t*100+'%'
   }
   // 列表条跳转
-  document.querySelectorAll('.tia-list>ol>li').map(item=>{
-    item.onclick=({target:{dataset:{id}}})=>{
-      this._id = id
+  ObjectMap(tia_all_list,item=>{
+    item.onclick=({target})=>{
+      let id = this._id = target.dataset.id
+      tia_List && (tia_List.className = '') // 清楚上次的信息
+      tia_List = target
+      tia_List.className = 'select';
       this.player(this.detail.list[id]).then(()=>{
         this.play().then(()=>{
           // this.$('tia-list').scrollTo(0,this.$('select').offsetTop - 100)
@@ -471,7 +294,6 @@ tia.prototype.handleBtn=function(){
       })
     }
   })
-  let _this = this
   this.$('order-switch').onclick=function(e){
     _this._orderIndex++
     let index = _this._orderIndex%3
@@ -499,7 +321,7 @@ tia.prototype.panelSwitch = function(){
     this.$_panelSwitch.className = 'panel-switch'
   }else{
     // 打开
-		this.$('tia-panel').style.width= "15.1em";
+		this.$('tia-panel').style.width= "15.1rem";
     this.$_panelSwitch.className = 'panel-switch on'
   }
 }
@@ -557,7 +379,7 @@ tia.prototype.parseLyric= function(lrc){
     temp += '<p>' + result[i][1] + '</p>'
   }
   this.$_lrcWrap.innerHTML = temp
-  this.$lrcView = document.querySelectorAll('.lrc-content>p')
+  this.$lrcView = this.$DOM.querySelectorAll('.lrc-content>p')
   // console.log(this.$lrcView)
 }
 /**
@@ -576,7 +398,8 @@ tia.prototype.toggle = function(){
  * @return: 
  */
 tia.prototype.pause = function(){
-  this.$_control.map(item=>{
+  // this.$_control.
+  ObjectMap(this.$_control,item=>{
     item.innerHTML = icon.play
     item.className = 'tia-icon music-control icon-play'
   })
@@ -592,8 +415,9 @@ tia.prototype.play=function(){
     this.audio.play().then(()=>{
       // do some thing
       let allTime = this._allTime = this.audio.duration
-      this.$_allTime.innerHTML = (~~(allTime/60) +":"+(~~allTime%60)).pareTime()
-      this.$_control.map(item=>{
+      this.$_allTime.innerHTML = pareTime(~~(allTime/60) +":"+(~~allTime%60))
+      // this.$_control.
+      ObjectMap(this.$_control,item=>{
         item.innerHTML = icon.pause
         item.className = 'tia-icon music-control icon-pause'
       })
@@ -634,7 +458,6 @@ tia.prototype.prev=function() {
     Toast('已经第一首了！');
     return false
   }
-  let index = _this._orderIndex%3
   let t = this.detail.list[--this._id]
   this.player(t).then(()=>{
     this.play()
@@ -651,7 +474,7 @@ tia.prototype.player = function(t){
     try {
       this.audio.src = t.src
       this.$_Pic.style.background='url('+t.pic+')'
-      this.$_title.innerHTML = '<p>' + t.name + '<span class="via-author"> - ' + t.artist + '</span></p>'
+      this.$_title.innerHTML = '<span>'+t.name + '</span><span class="tia-author"> - ' + t.artist + '</span>'
       // 获取歌词
       this.getlyric(t.id)
       // 播放歌曲
@@ -669,8 +492,8 @@ tia.prototype.player = function(t){
  */
 tia.prototype.$=function(val){
   if(/^#/.test(val)) return document.getElementById(val.replace(/^#/,''))
-  // if(/^./.test(val)) return document.getElementsByClassName(val.replace(/^./,''))[0]
-  return document.getElementsByClassName(val)[0]
+  // if(/^./.test(val)) return this.$DOM.getElementsByClassName(val.replace(/^./,''))[0]
+  return this.$DOM.getElementsByClassName(val)[0]
 }
 /**
  * @description: 计算元素点击的宽度百分比
@@ -679,8 +502,8 @@ tia.prototype.$=function(val){
  * } 
  * @return: 
  */
-tia.prototype.$DisplayX = function({target,clientX}){
-  // console.log(event)
+tia.prototype.$DisplayX = function({target,clientX}, Dom = false){
+  if(Dom) target = Dom
   let left ,parent = target.offsetParent
   left = target.offsetLeft;
   while(parent = parent.offsetParent){
@@ -694,3 +517,7 @@ const $Tia = (options)=>{
   console.log(`${'\n'}%c TiaPlayer v${_VERSION} %c https://qiatia.cn ${'\n'}`, 'color: #eee; background: #030307; padding:3px 0;', 'background: #fadfa3; color:#42b983; padding: 3px 0;');
   return new tia(options)
 }
+
+((w)=>(w.$Tia=$Tia))(window)
+
+// export default $Tia

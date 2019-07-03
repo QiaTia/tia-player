@@ -1,5 +1,5 @@
-function trim(){
-  return this.replace(/^\s*/, '').replace(/\s*$/, '');
+function trim(val){
+  return val.replace(/^\s*/, '').replace(/\s*$/, '');
 }
 const http = {
   baseUrl: '',
@@ -100,4 +100,5 @@ const http = {
     return this.request(url,data,'POST')
   }
 }
-modules.exports = http
+// modules.exports = http
+export default http

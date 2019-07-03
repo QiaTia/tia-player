@@ -31,4 +31,8 @@ toast.prototype.hide=function(){
   setTimeout(()=>(this.Dom.parentNode.removeChild(this.Dom)),300)
 }
 
-modules.exports = (options)=> new toast(options)
+
+// modules.exports = (options)=> new toast(options)
+export default function (options){
+  return new toast(options)
+}
