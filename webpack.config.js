@@ -1,15 +1,16 @@
 const path = require('path');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const env = process.env.NODE_ENV
 
 module.exports = {
-  entry: ["@babel/polyfill",'./src/index.js'],
+  mode: 'production', // development
+  entry: ['./src/index.js'],
   devtool: false,
-  // plugins: [ new BundleAnalyzerPlugin({ analyzerPort: 8919 })],
+  plugins: [
+    // new BundleAnalyzerPlugin({ analyzerPort: 8919 })
+  ],
   module: {
     rules: [
-      {
-        test: /\.less$/,use: ['style-loader', 'css-loader', 'less-loader']
-      },
+      {test: /\.[le]|[c]ss$/,use: ['style-loader','css-loader', "postcss-loader", 'less-loader']},
       {
         test: /\.js$/,
         use: { loader: 'babel-loader'},
@@ -24,11 +25,15 @@ module.exports = {
   // devServer:{
   //   //设置基本目录结构
   //   contentBase:path.resolve(__dirname,'/'),
+  // 资源路径  
+  // contentBase: './public',
   //   //服务器的IP地址，可以使用IP也可以使用localhost
   //   host:'localhost',
   //   //服务端压缩是否开启
   //   compress:true,
   //   //配置服务端口号
-  //   port:8090
+  //   port:8090,
+  // 实时刷新  
+  // inline: true
   // }
 };

@@ -4,9 +4,9 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-07-03 22:32:47
+ * @LastEditTime: 2019-07-04 18:21:56
  */
-import "@babel/polyfill";
+// import '@babel/polyfill'
 import Toast from './toast'
 import $http from './http'
 import './tia.less'
