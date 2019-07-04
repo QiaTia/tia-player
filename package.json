@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QiaTia/viaplayer.git"
+    "url": "git+https://github.com/QiaTia/tia-palyer.git"
   },
   "keywords": [
     "music",
@@ -18,9 +18,9 @@
   "author": "QiaTia",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/QiaTia/viaplayer/issues"
+    "url": "https://github.com/QiaTia/tia-palyer/issues"
   },
-  "homepage": "https://github.com/QiaTia/viaplayer#readme",
+  "homepage": "https://github.com/QiaTia/tia-palyer#readme",
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",

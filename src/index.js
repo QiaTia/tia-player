@@ -4,13 +4,14 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-07-03 20:15:32
+ * @LastEditTime: 2019-07-03 22:32:47
  */
-const _VERSION = '19.07.01'
-
+import "@babel/polyfill";
 import Toast from './toast'
 import $http from './http'
 import './tia.less'
+
+const _VERSION = '19.07.01'
 
 /**
  * @description: 格式化时间显示
@@ -68,7 +69,7 @@ const icon = {
  *    detail: 当前歌单信息
  * }
  */
-function tia(id = 729837165, url = '/'){
+function tia(id = 729837165, url = '/tia/'){
   $http.baseUrl = url
   let t = Toast({
     title:'资源准备中',

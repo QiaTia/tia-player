@@ -6,9 +6,7 @@
 function toast (data){
   if(!data) return this
   typeof data == 'string'&&(data = {title: data})
-  let param= {duration: 3000,icon: 'none',...data}
-  // console.log(param)
-  return this.init(param)
+  return this.init({duration: 3000,icon: 'none',...data})
 }
 toast.prototype.init=function(param){
   const id = 'via_' + Math.round(Math.random() * 9999),
