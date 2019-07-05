@@ -33,7 +33,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js'
+    filename: 'tia-player.js'
   },
   devServer:{
     //服务器的IP地址，可以使用IP也可以使用localhost
