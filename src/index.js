@@ -4,7 +4,7 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-07-04 18:21:56
+ * @LastEditTime: 2019-07-05 12:53:25
  */
 // import '@babel/polyfill'
 import Toast from './toast'
@@ -69,8 +69,8 @@ const icon = {
  *    detail: 当前歌单信息
  * }
  */
-function tia(id = 729837165, url = '/tia/'){
-  $http.baseUrl = url
+function tia(id = 729837165, api = 'https://qiatia.cn/tia/'){
+  $http.baseUrl = api
   let t = Toast({
     title:'资源准备中',
     icon: 'load',
@@ -116,8 +116,7 @@ tia.prototype.init = function(detail){
     listInner += '<li data-id="' + i + '"><span>'+detail.list[i].name + '</span><span class="list-right">' + detail.list[i].artist + '</span></li>'
   }
   // 网页渲控件
-  const template = `
-    <div class="tia-list"><ol>${listInner}</ol></div>
+  const template = `<div class="tia-list"><ol>${listInner}</ol></div>
     <div class="tia-body">
       <div class="tia-pic tia-toggle"><div class="tia-icon music-control icon-play">${icon.play}</div></div>
       <div class="tia-panel">

@@ -4,8 +4,9 @@
   "description": "tia-music-palyer",
   "main": "index.js",
   "scripts": {
-    "serve": "webpack --config webpack.config && node main",
-    "build": "webpack -p --config webpack.config.js"
+    "serve": "webpack-dev-server --mode=development --config webpack.config",
+    "test": "node main",
+    "build": "webpack --mode=production -p --config webpack.config"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,8 @@
     "less": "^3.9.0",
     "less-loader": "^5.0.0",
     "lodash": "^4.17.11",
+    "mini-css-extract-plugin": "^0.7.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
     "postcss-loader": "^3.0.0",
     "qs": "^6.7.0",
     "querystring": "^0.2.0",
