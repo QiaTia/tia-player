@@ -10,7 +10,7 @@ module.exports = {
   devtool: false,
   plugins: [
     // new BundleAnalyzerPlugin({ analyzerPort: 8919 }),
-    // new MiniCssExtractPlugin()
+    new MiniCssExtractPlugin()
   ],
   optimization: {
     minimizer: [

@@ -1,6 +1,7 @@
 # TiaPlayer 
   https://qiatia.cn/tools/viaplayer/via-mini.html
 
+
 ## 轻量级的 JavaScript 在线音乐播放器 三行代码嵌入任意网页
 
 简约不简单, 内置我苦心钻研多年的一个Toast模块, $http 发送网络请求模块(没办法, 实在不想用JQuery咯), 动画全使用CSS3实现! 你在问我兼容性? 什么! 风太大我听不见, 其他浏览器还好辣, IE真没啥信心.

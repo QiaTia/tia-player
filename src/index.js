@@ -4,9 +4,11 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-07-05 12:53:25
+ * @LastEditTime: 2019-07-08 14:59:55
  */
-// import '@babel/polyfill'
+
+// 为了兼容ie的Promise 但是等我弄好才发现, IE还是那么一如既往的顽强, 很多地方还是不支持, 故不打算支持ie咯
+// import './promise'
 import Toast from './toast'
 import $http from './http'
 import './tia.less'
@@ -174,7 +176,7 @@ tia.prototype.init = function(detail){
     if(this.$lrcView[i]&&this.lyrics.length>1) {
       if (currentTime > this.lyrics[i][0]) {
         try {
-          this.$_lrcWrap.style.transform = "translateY(-" + (1.2 * i) + "rem)";
+          this.$_lrcWrap.style.transform = "translateY(-" + (1.2 * i) + "em)";
           this.$lrcView[i].className = 'lrc-cursor';
           i>0&&(this.$lrcView[i - 1].className = '')
         } catch (e) {
@@ -194,7 +196,7 @@ tia.prototype.init = function(detail){
     this.pause()
     i = 0
     index = 0
-    this.$_lrcWrap.style.transform = "translateY(0rem)";
+    this.$_lrcWrap.style.transform = "translateY(0em)";
     Toast('即将播放下一首')
     return this.next()
   }, false);
@@ -233,7 +235,7 @@ tia.prototype.init = function(detail){
           if(!this.$lrcView[j] || currentTime < this.lyrics[j][0]) break;
         }
         i = j
-        this.$_lrcWrap.style.transform = "translateY(-" + (1.2 * i) + "rem)"
+        this.$_lrcWrap.style.transform = "translateY(-" + (1.2 * i) + "em)"
         this.$lrcView[i].className = 'lrc-cursor'
       },10)
     }
@@ -265,7 +267,7 @@ tia.prototype.handleBtn=function(){
   this.$('lrc-switch').onclick=()=>{
     let t = this.$('tia-lrc')
     if(t.style.height!=='0px') t.style.height = 0
-    else t.style.height = '2.5rem'
+    else t.style.height = '2.5em'
   }
   // 列表切换
   let tia_List, tia_all_list = this.$DOM.querySelectorAll('.tia-list>ol>li')
@@ -276,7 +278,7 @@ tia.prototype.handleBtn=function(){
     let t = this.$('tia-list')
     // 跳转到本次播放列表位置
     tia_List&&t.scrollTo&&t.scrollTo(0,tia_List.offsetTop - 100)
-    if(t.style.height!=='15rem') t.style.height = '15rem'
+    if(t.style.height!=='15em') t.style.height = '15em'
     else t.style.height = 0
   }
   let _this = this
@@ -331,7 +333,7 @@ tia.prototype.panelSwitch = function(){
     this.$_panelSwitch.className = 'panel-switch'
   }else{
     // 打开
-		this.$('tia-panel').style.width= "15.1rem";
+		this.$('tia-panel').style.width= "15.1em";
     this.$_panelSwitch.className = 'panel-switch on'
   }
 }
@@ -528,6 +530,6 @@ const $Tia = (options)=>{
   return new tia(options)
 }
 
-((w)=>(w.$Tia=$Tia))(window)
+// ((w)=>(w.$Tia=$Tia))(window)
 
-// export default $Tia
+export default $Tia
