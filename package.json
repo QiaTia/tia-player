@@ -1,6 +1,6 @@
 {
   "name": "tia-player",
-  "version": "19.6.25",
+  "version": "19.7.8",
   "description": "tia-music-palyer",
   "main": "dist/tia-player.js",
   "scripts": {

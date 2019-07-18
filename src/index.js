@@ -4,7 +4,7 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-07-08 14:59:55
+ * @LastEditTime: 2019-07-18 16:37:32
  */
 
 // 为了兼容ie的Promise 但是等我弄好才发现, IE还是那么一如既往的顽强, 很多地方还是不支持, 故不打算支持ie咯
@@ -13,7 +13,7 @@ import Toast from './toast'
 import $http from './http'
 import './tia.less'
 
-const _VERSION = '19.07.01'
+const _VERSION = '19.07.08'
 
 /**
  * @description: 格式化时间显示
@@ -115,29 +115,29 @@ tia.prototype.parse = function({playlist,privileges}){
 tia.prototype.init = function(detail){
   let listInner = ''
   for (let i in detail.list) {
-    listInner += '<li data-id="' + i + '"><span>'+detail.list[i].name + '</span><span class="list-right">' + detail.list[i].artist + '</span></li>'
+    listInner += '<li data-id="' + i + '"><span title="'+detail.list[i].name+'">'+detail.list[i].name+'</span><span class="list-right">' + detail.list[i].artist + '</span></li>'
   }
   // 网页渲控件
   const template = `<div class="tia-list"><ol>${listInner}</ol></div>
     <div class="tia-body">
-      <div class="tia-pic tia-toggle"><div class="tia-icon music-control icon-play">${icon.play}</div></div>
+      <div class="tia-pic tia-toggle" title="播放切换"><div class="tia-icon music-control icon-play">${icon.play}</div></div>
       <div class="tia-panel">
         <div class="tia-info">
-          <div class="m-info">${detail.list[0].name}<span class="tia-author"> - ${detail.list[0].artist}</span></div>
-          <div class='tia-time-info'><span class='tia-now-time'>00:00</span> / <span class='tia-all-time'>00:00</span></div>
+          <div class="m-info"></div>
+          <div class='tia-time-info'><span class='tia-now-time'  title="当前进度">00:00</span> / <span class='tia-all-time'  title="合计时间">00:00</span></div>
         </div>
         <div class="tia-bar-warp"><div class="tia-bar"><span class='bar-control'></span></div></div>
         <div class="tia-control">
-          <span class="tia-icon fast_rewind">${icon.fast_rewind}</span>
-          <span class="tia-icon music-control icon-play">${icon.play}</span>
-          <span class="tia-icon fast_forward">${icon.fast_rewind}</span>
-          <span class="tia-icon volume">${icon.volume}<div class='volume-control'><span></span></div></span>
-          <span class="tia-icon order-switch order1" >${icon.repeat}</span>
-          <span class="tia-icon menu-switch">${icon.menu}</span>
-          <span class="tia-icon lrc-switch">${icon.panel}</span>
+          <span class="tia-icon fast_rewind"  title="上一曲">${icon.fast_rewind}</span>
+          <span class="tia-icon music-control icon-play"  title="播放切换">${icon.play}</span>
+          <span class="tia-icon fast_forward"  title="下一曲">${icon.fast_rewind}</span>
+          <span class="tia-icon volume"  title="音量调节">${icon.volume}<div class='volume-control'><span></span></div></span>
+          <span class="tia-icon order-switch order1" title="播放顺序切换">${icon.repeat}</span>
+          <span class="tia-icon menu-switch" title="打开/隐藏 播放列表">${icon.menu}</span>
+          <span class="tia-icon lrc-switch" title="显示/隐藏 歌词">${icon.panel}</span>
         </div>
       </div>
-      <div class="panel-switch">${icon.left}</div>
+      <div class="panel-switch" title="打开/关闭控制面板">${icon.left}</div>
     </div>
     <div class="tia-lrc"><div class="lrc-content"></div></div>
     <audio class="tia-audio" src="${detail.list[0].src}"></audio>`
@@ -292,17 +292,13 @@ tia.prototype.handleBtn=function(){
   }
   // 列表条跳转
   ObjectMap(tia_all_list,item=>{
-    item.onclick=({target})=>{
-      let id = this._id = target.dataset.id
+    item.onclick=function(){
+      const id = _this._id = this.dataset.id
       tia_List && (tia_List.className = '') // 清楚上次的信息
-      tia_List = target
+      tia_List = this
       tia_List.className = 'select';
-      this.player(this.detail.list[id]).then(()=>{
-        this.play().then(()=>{
-          // this.$('tia-list').scrollTo(0,this.$('select').offsetTop - 100)
-        })
-      }).catch(e=>{
-        Toast(e.toString)
+      _this.player(_this.detail.list[id]).then(()=>{
+        _this.play()
       })
     }
   })
@@ -435,8 +431,8 @@ tia.prototype.play=function(){
       })
       resolve()
     }).catch(e=>{
-      Toast(e.toString())
       console.warn(e)
+      Toast("歌曲播放失败, 可能这首歌有版权限制")
       setTimeout(this.next,500)
       reject()
     })
@@ -470,8 +466,7 @@ tia.prototype.prev=function() {
     Toast('已经第一首了！');
     return false
   }
-  let t = this.detail.list[--this._id]
-  this.player(t).then(()=>{
+  this.player(this.detail.list[--this._id]).then(()=>{
     this.play()
   })
 }
@@ -487,6 +482,7 @@ tia.prototype.player = function(t){
       this.audio.src = t.src
       this.$_Pic.style.background='url('+t.pic+')'
       this.$_title.innerHTML = '<span>'+t.name + '</span><span class="tia-author"> - ' + t.artist + '</span>'
+      this.$_title.title="Name: "+t.name + "\nArct: " + t.artist
       // 获取歌词
       this.getlyric(t.id)
       // 播放歌曲
@@ -494,6 +490,7 @@ tia.prototype.player = function(t){
     }
     catch(e){
       Toast(e.toString())
+      reject(e)
     }
   })
 }
@@ -530,6 +527,6 @@ const $Tia = (options)=>{
   return new tia(options)
 }
 
-// ((w)=>(w.$Tia=$Tia))(window)
+((w)=>(w.$Tia=$Tia))(window)
 
-export default $Tia
+// export default $Tia

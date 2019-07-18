@@ -1,6 +1,6 @@
-# TiaPlayer 
-  https://qiatia.cn/tools/viaplayer/via-mini.html
+# TiaPlayer
 
+  https://qiatia.cn/tools/viaplayer/via-mini.html
 
 ## 轻量级的 JavaScript 在线音乐播放器 三行代码嵌入任意网页
 
@@ -11,14 +11,6 @@
     歌手图片显示, 歌词滚动, 歌曲列表, 常用的歌曲切换, 播放顺序切换, 播放进度控制, 播放音量控制, 后台获取网易云音乐歌单
 
 ### 兼容性
-
----
-chrome: 13+
-Safari: 5.1+
-Firefox: 4+
-Opera: 11.60+
-Internet Explorer: 9+
----
 
 ### 开始使用 && 再本地或服务器
 
@@ -55,11 +47,11 @@ apiaddress: api链接地址，可选，接受string数据
 ```
 ### 高清预览
 
-![view](/preview/1.png)
-![view](/preview/2.png)
-![view](/preview/3.png)
-![view](/preview/4.png)
-![view](/preview/5.png)
+![view](https://github.com/QiaTia/tia-player/raw/master/preview/1.png)
+![view](https://github.com/QiaTia/tia-player/raw/master/preview/2.png)
+![view](https://github.com/QiaTia/tia-player/raw/master/preview/3.png)
+![view](https://github.com/QiaTia/tia-player/raw/master/preview/4.png)
+![view](https://github.com/QiaTia/tia-player/raw/master/preview/5.png)
 
 ### 反馈&建议&疑问
 
@@ -73,8 +65,6 @@ bug嘛，前几天刚刚弄出来的时候，，会把我主页面的所有元�
 现在版权保护比较严重, 本地又是用的网易云在线api, 所有会出现一些付费歌曲无法播放的问题, 具体来说, 无解, 下次我可以考虑屏蔽掉这些歌曲. 现在只能争取选一个无不可以播放的歌单
 
 ### emmm
-
-
 
 # 后台 API & 致谢
 

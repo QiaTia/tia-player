@@ -23,7 +23,7 @@ http.createServer(function (request, response) {
     playlist(id).then(res=>{
       console.log("\033[40;34m playlist:", id+'\033[0m')
       response.writeHead(res.status, {'Content-Type': 'application/json; charset=UTF-8'})
-      response.write(res.body)
+      response.write(res.body.replace(/http:/g,'https:'))
       // response.getWriter().print(JSON.toJSONString(res));
       response.end()
     }).catch(e=>{
