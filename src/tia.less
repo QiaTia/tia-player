@@ -22,8 +22,29 @@
     }
     .tia-body{
       position: relative;
-      z-index: 9;  
+      z-index: 9;
+      .tia-panel{
+        width: 0;
+      }
     }
+    // 面板切换
+    .panel-switch {
+      cursor: pointer;
+      width: 1em;
+      height: 100%;
+      float: left;
+      box-shadow: rgba(0, 0, 0, 0.1) 1px -1px 2px;
+      background-color: @bgColor;
+      border-radius: 0 3px 0 3px;
+      fill: @DescColor;
+      svg {
+        height: 100%;
+        width: 1em
+      }
+    }
+  }
+  .panel-switch{
+    display: none;
   }
   // 歌手控制区域
   .tia-pic {
@@ -139,7 +160,8 @@
   // 
   .tia-body {
     height: 4.1em;
-    
+    width: 100%;
+    display: flex;
     // m面板
     .tia-panel {
       background-color: #fff;
@@ -149,7 +171,7 @@
       float: left;
       transition: all .3s ease;
       overflow: hidden;
-      width: 0;
+      flex: 1;
       // 标题信息
       .tia-info {
         color: @TiColor;
@@ -275,28 +297,13 @@
     .on>svg {
       transform: rotate(180deg)
     }
-    // 面板切换
-    .panel-switch {
-      cursor: pointer;
-      width: 1em;
-      height: 100%;
-      float: left;
-      box-shadow: rgba(0, 0, 0, 0.1) 1px -1px 2px;
-      background-color: @bgColor;
-      border-radius: 0 3px 0 3px;
-      fill: @DescColor;
-      svg {
-        height: 100%;
-        width: 1em
-      }
-    }
   }
-  
   // 歌词区域
   .tia-lrc {
     position: absolute;
-    transition: all .3s ease;
     text-align: center;
+    height: 2.5em;
+    overflow: hidden;
     .lrc-content {
       transition: all .3s ease;
       p {
@@ -314,6 +321,7 @@
     }
   }
 }
+
 div.tia-toast {
   width: 100%;
   z-index: 10;
@@ -324,6 +332,7 @@ div.tia-toast {
   left: 0;
   color: @bgColor;
   display: flex;
+  overflow: hidden;
   p{
     flex: 1;
     padding: 0;
@@ -342,6 +351,19 @@ div.tia-toast {
     }
     &.load{
       animation: tia-rotate 1.6s linear infinite;
+    }
+  }
+  span{
+    background-color: transparent;
+    line-height: 100%;
+    display: flex;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    color: @select;
+    padding: 0 12px;
+    &:hover{
+      opacity: .9;
     }
   }
 }

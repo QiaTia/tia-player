@@ -4,7 +4,7 @@
  * @Date: 2019-06-25 14:44:34
  * @LastEditors: QiaTia
  * @GitHub: https://github.com/QiaTia/
- * @LastEditTime: 2019-07-18 16:37:32
+ * @LastEditTime: 2019-07-18 18:11:29
  */
 
 // 为了兼容ie的Promise 但是等我弄好才发现, IE还是那么一如既往的顽强, 很多地方还是不支持, 故不打算支持ie咯
@@ -81,7 +81,7 @@ function tia(id = 729837165, api = 'https://qiatia.cn/tia/'){
   $http.get('playlist/'+id).then((res)=>{
     // console.log(res)
     let detail= this.detail = this.parse(res)
-    this.init(detail)
+    this.init({detail})
     t.hide()
   }).catch(e=>Toast(e.toString()))
   // this.init(id) 
@@ -112,13 +112,13 @@ tia.prototype.parse = function({playlist,privileges}){
  * @param {type} 
  * @return: 
  */
-tia.prototype.init = function(detail){
+tia.prototype.init = function({detail, volume=0.8, fiexed = true}){
   let listInner = ''
   for (let i in detail.list) {
     listInner += '<li data-id="' + i + '"><span title="'+detail.list[i].name+'">'+detail.list[i].name+'</span><span class="list-right">' + detail.list[i].artist + '</span></li>'
   }
   // 网页渲控件
-  const template = `<div class="tia-list"><ol>${listInner}</ol></div>
+  const template = fiexed?`<div class="tia-list"><ol>${listInner}</ol></div>
     <div class="tia-body">
       <div class="tia-pic tia-toggle" title="播放切换"><div class="tia-icon music-control icon-play">${icon.play}</div></div>
       <div class="tia-panel">
@@ -141,8 +141,31 @@ tia.prototype.init = function(detail){
     </div>
     <div class="tia-lrc"><div class="lrc-content"></div></div>
     <audio class="tia-audio" src="${detail.list[0].src}"></audio>`
-  var div = document.createElement("div");
-  div.setAttribute("class", "Tia-player tia-fixed");
+    :`<div class="tia-list"><ol>${listInner}</ol></div>
+    <div class="tia-body">
+      <div class="tia-pic tia-toggle" title="播放切换"><div class="tia-icon music-control icon-play">${icon.play}</div></div>
+      <div class="tia-lrc"><div class="lrc-content"></div></div>
+      <div class="tia-panel">
+        <div class="tia-info">
+          <div class="m-info"></div>
+          <div class='tia-time-info'><span class='tia-now-time'  title="当前进度">00:00</span> / <span class='tia-all-time'  title="合计时间">00:00</span></div>
+        </div>
+        <div class="tia-bar-warp"><div class="tia-bar"><span class='bar-control'></span></div></div>
+        <div class="tia-control">
+          <span class="tia-icon fast_rewind"  title="上一曲">${icon.fast_rewind}</span>
+          <span class="tia-icon music-control icon-play"  title="播放切换">${icon.play}</span>
+          <span class="tia-icon fast_forward"  title="下一曲">${icon.fast_rewind}</span>
+          <span class="tia-icon volume"  title="音量调节">${icon.volume}<div class='volume-control'><span></span></div></span>
+          <span class="tia-icon order-switch order1" title="播放顺序切换">${icon.repeat}</span>
+          <span class="tia-icon menu-switch" title="打开/隐藏 播放列表">${icon.menu}</span>
+          <span class="tia-icon lrc-switch" title="显示/隐藏 歌词">${icon.panel}</span>
+        </div>
+        <div class="panel-switch" title="打开/关闭控制面板">${icon.left}</div>
+      </div>
+    </div>
+    <audio class="tia-audio" src="${detail.list[0].src}"></audio>`
+  const div = document.createElement("div");
+  div.setAttribute("class", "Tia-player "+ (fiexed?"tia-fixed":''));
   div.innerHTML = template;
   document.body.appendChild(div);
   this.$DOM = div
@@ -152,7 +175,7 @@ tia.prototype.init = function(detail){
   this._orderIndex = 0
   // 音频监听
   this.audio = this.$("tia-audio")
-  this.audio.volume = 0.8
+  this.audio.volume = volume
   // 时间
   this.$_nowtime = this.$("tia-now-time")
   this.$_allTime = this.$("tia-all-time")
