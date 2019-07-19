@@ -7,42 +7,6 @@
   position: relative;
   font-family: Arial,Helvetica,sans-serif;
   background-color: transparent;
-  &.tia-fixed{
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    z-index: 9;
-    .tia-lrc {
-      bottom: 0;
-      margin-bottom: .2em;
-      width: 100vw;
-      height: 2.5em;
-      overflow: hidden;
-      pointer-events: none;
-    }
-    .tia-body{
-      position: relative;
-      z-index: 9;
-      .tia-panel{
-        width: 0;
-      }
-    }
-    // 面板切换
-    .panel-switch {
-      cursor: pointer;
-      width: 1em;
-      height: 100%;
-      float: left;
-      box-shadow: rgba(0, 0, 0, 0.1) 1px -1px 2px;
-      background-color: @bgColor;
-      border-radius: 0 3px 0 3px;
-      fill: @DescColor;
-      svg {
-        height: 100%;
-        width: 1em
-      }
-    }
-  }
   .panel-switch{
     display: none;
   }
@@ -161,7 +125,7 @@
   .tia-body {
     height: 4.1em;
     width: 100%;
-    display: flex;
+    // display: flex;
     // m面板
     .tia-panel {
       background-color: #fff;
@@ -171,7 +135,7 @@
       float: left;
       transition: all .3s ease;
       overflow: hidden;
-      flex: 1;
+      // flex: 1;
       // 标题信息
       .tia-info {
         color: @TiColor;
@@ -302,6 +266,7 @@
   .tia-lrc {
     position: absolute;
     text-align: center;
+    transition: all .3s ease;
     height: 2.5em;
     overflow: hidden;
     .lrc-content {
@@ -320,11 +285,48 @@
       }
     }
   }
+  &.tia-fixed{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 1022;
+    .tia-lrc {
+      bottom: 0;
+      margin-bottom: .2em;
+      width: 100vw;
+      height: 2.5em;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .tia-body{
+      position: relative;
+      z-index: 1022;
+      .tia-panel{
+        width: 0;
+      }
+    }
+    // 面板切换
+    .panel-switch {
+      cursor: pointer;
+      width: 1em;
+      height: 100%;
+      float: left;
+      display: block;
+      box-shadow: rgba(0, 0, 0, 0.1) 1px -1px 2px;
+      background-color: @bgColor;
+      border-radius: 0 3px 0 3px;
+      fill: @DescColor;
+      svg {
+        height: 100%;
+        width: 1em
+      }
+    }
+  }
 }
 
 div.tia-toast {
   width: 100%;
-  z-index: 10;
+  z-index: 1024;
   transition: all .3s ease;
   background-color: @TiColor;
   position: fixed;
