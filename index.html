@@ -1,19 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ZH_CN">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width">
-	<title>音乐在线</title>
-	<style type="text/css">
-		/* *{margin: 0;padding: 0;box-sizing: border-box;word-wrap: break-word} */
-		/* body{background-color: #fff;} */
-	</style>
-	<!-- <link rel="stylesheet" href="/dist/tia.css"> -->
+	<title>Tia - Player</title>
+	<link data-n-head="true" rel="icon" type="image/x-icon" href="//i.qiatia.cn/public/qiatia/favicon.ico">
+	<link rel="stylesheet" href="//i.qiatia.cn/public/qiatia/qiatia.css">
 </head>
 <body>
-	<!-- <script src="//i.qiatia.cn/public/tia-player/tia-playe.mini.js"></script> -->
-	<!-- <script src="/tia-player.js"></script> -->
-<script src='/dist/tia-player.js'> </script>
+	<ul class="animo-wrap">
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ul>
+	<div class="container">
+		<header style="line-height: 3;font-size: 24px;font-weight: bold;text-align: center;color: rgba(0,0,0,.5)">Tia-Player - HTML5音乐插件</header>
+		<article>
+			<h1>开始使用</h1>
+			<div class="textarea-wrap">
+				<textarea id="code" style="resize:none;width: 100%;padding: 8px;color: #eee;letter-spacing: normal;word-spacing: normal;text-transform: none;text-indent: 0px;text-shadow: none;background-color: rgb(57,61,73);font-size: 16px;" rows="3"></textarea>
+				<a id="copy" class="btn btn-radius"">复制</a>
+			</div>
+		</article>
+		<footer style="text-align: center;width: 92%;max-width: 1280px">
+			<a class="btn" href="https://qiatia.cn/content.php?i=27">Docs</a>
+			<a class="btn" href="https://github.com/QiaTia/viaplayer">Github</a>
+		</footer>
+	</div>
+	<!-- <script src="//i.qiatia.cn/public/tia-player/tia-player.mini.js"></script> -->
+	<!-- <script src="tia-player.js"></script>
+	<script src="page.js"></script> -->
+	<script src='/dist/tia-player.js'> </script>
+	<script src="/dist/page.js"></script>
 	<script>var $ = $Tia(311363779)</script>
 </body>
 </html>

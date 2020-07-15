@@ -1,10 +1,10 @@
 # TiaPlayer
 
-  https://qiatia.cn/tools/viaplayer/via-mini.html
+  http://v.qiatia.cn/tia-player/
 
 ## 轻量级的 JavaScript 在线音乐播放器 三行代码嵌入任意网页
 
-简约不简单, 内置我苦心钻研多年的一个Toast模块, $http 发送网络请求模块(没办法, 实在不想用JQuery咯), 动画全使用CSS3实现! 你在问我兼容性? 什么! 风太大我听不见, 其他浏览器还好辣, IE真没啥信心.
+简约不简单, 内置我苦心钻研多年的一个Toast模块, http 发送网络请求模块(没办法, 实在不想用JQuery咯), 动画全使用CSS3实现! 你在问我兼容性? 什么! 风太大我听不见, 其他浏览器还好辣, IE真没啥信心.
 
 ### 大致功能
 
@@ -12,7 +12,7 @@
 
 ### 兼容性
 
-### 开始使用 && 再本地或服务器
+### 开始使用 && 在本地或服务器
 
 ```CMD
 
@@ -42,7 +42,7 @@ apiaddress: api链接地址，可选，接受string数据
 添加css样式即可
 ```css
 @media (max-width:600px){
-   #viaplayer{display: none}
+  #viaplayer{display: none}
 }
 ```
 ### 高清预览
@@ -55,7 +55,7 @@ apiaddress: api链接地址，可选，接受string数据
 
 ### 反馈&建议&疑问
 
-<a href="https://qiatia.cn/content.php?i=27#reply">点这里告诉我吧</a>
+<a href="https://qiatia.cn/article/27#reply">点这里告诉我吧</a>
 
 ### 入坑小记：
 
@@ -69,10 +69,11 @@ bug嘛，前几天刚刚弄出来的时候，，会把我主页面的所有元�
 # 后台 API & 致谢
 
 项目下基于node的后台api是我翻阅下面php的api实现的, 完全就是照抄的, 不需要担心
+
 <a href='https://github.com/metowolf/NeteaseCloudMusicApi'>NeteaseCloudMusicApi</a>
 
-# Ta们也在用ViaPlayer
+# Ta们也在用Tia - Player
 
 https://qiatia.github.io/
 
-https://tia.qiatia.cn
+https://qiatia.cn

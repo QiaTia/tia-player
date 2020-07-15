@@ -6,7 +6,7 @@ const http = require('http'),
 
 const  { playlist, lyric } = require('./serve/index')
 	  
-const port = process.argv[2] || 8080;
+const port = process.argv[2] || 3000;
 
 const types = {
 	'css': 'text/css',
